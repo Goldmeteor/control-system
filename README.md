@@ -30,3 +30,10 @@ npm run dev
 ```bash
 npm run build
 ```
+
+GitHub Pages 部署：
+
+1. 仓库设置中打开 Pages。
+2. Build and deployment 的 Source 选择 `GitHub Actions`。
+3. 推送 `main` 分支后，workflow 会自动构建并发布到
+   `https://goldmeteor.github.io/control-system/`。
