@@ -475,6 +475,7 @@ a {
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
+  margin-bottom: 18px;
 }
 
 .control {
@@ -487,6 +488,16 @@ a {
 
 input.control {
   min-width: 240px;
+  flex: 1 1 280px;
+  max-width: 560px;
+}
+
+select.control {
+  min-width: 0;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 button.control {
