@@ -494,7 +494,9 @@ input.control {
 
 select.control {
   min-width: 0;
+  width: 160px;
   max-width: 220px;
+  padding-right: 32px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
