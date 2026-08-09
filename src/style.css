@@ -74,9 +74,23 @@ a {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 248px 1fr;
+  position: relative;
+}
+
+.app-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.22;
+  background-image: url('./assets/learning-hub-bg.png');
+  background-size: cover;
+  background-position: center;
 }
 
 .sidebar {
+  position: relative;
+  z-index: 1;
   position: sticky;
   top: 0;
   height: 100vh;
@@ -167,6 +181,8 @@ a {
 
 .main-column {
   min-width: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .topbar {
@@ -208,6 +224,24 @@ a {
   max-width: 1440px;
   margin: 0 auto;
   padding: 26px 30px 64px;
+}
+
+.visual-banner {
+  position: relative;
+  overflow: hidden;
+  height: 148px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background-size: cover;
+  background-position: center;
+  box-shadow: var(--shadow);
+}
+
+.visual-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(7, 17, 31, 0.88) 0%, rgba(7, 17, 31, 0.28) 55%, rgba(7, 17, 31, 0.08) 100%);
 }
 
 .page-section {

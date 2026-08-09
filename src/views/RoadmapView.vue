@@ -78,6 +78,8 @@ function scrollToWeek(id: number) {
       </select>
     </div>
 
+    <div class="visual-banner roadmap" aria-hidden="true"></div>
+
     <div class="page-section">
       <div class="panel panel-pad">
         <div class="timeline">
@@ -159,3 +161,10 @@ function scrollToWeek(id: number) {
     </div>
   </div>
 </template>
+
+<style scoped>
+.visual-banner.roadmap {
+  margin-top: 18px;
+  background-image: url('../assets/roadmap-visual.png');
+}
+</style>

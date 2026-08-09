@@ -64,6 +64,8 @@ function categoryStats(categoryIndex: number, category: SoftwareCategory) {
       </select>
     </div>
 
+    <div class="visual-banner software" aria-hidden="true"></div>
+
     <div class="page-section category-grid">
       <section
         v-for="(category, categoryIndex) in filteredCategories"
@@ -114,3 +116,10 @@ function categoryStats(categoryIndex: number, category: SoftwareCategory) {
     </div>
   </div>
 </template>
+
+<style scoped>
+.visual-banner.software {
+  margin-top: 18px;
+  background-image: url('../assets/software-visual.png');
+}
+</style>

@@ -36,6 +36,8 @@ const phaseCounts = computed(() =>
       <span class="tiny">当前：Week {{ currentWeek === 13 ? '12 已完成' : currentWeek || '未开始' }}</span>
     </div>
 
+    <div class="visual-banner dashboard" aria-hidden="true"></div>
+
     <div class="stat-grid">
       <div class="stat-card">
         <strong>{{ totalCount }}</strong>
@@ -159,3 +161,10 @@ const phaseCounts = computed(() =>
     </div>
   </div>
 </template>
+
+<style scoped>
+.visual-banner.dashboard {
+  margin: 18px 0 20px;
+  background-image: url('../assets/dashboard-visual.png');
+}
+</style>

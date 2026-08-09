@@ -21,6 +21,8 @@ function toggle(id: string) {
 
     <div class="disclaimer">{{ complianceDisclaimer }}</div>
 
+    <div class="visual-banner compliance" aria-hidden="true"></div>
+
     <div class="page-section">
       <div class="section-head">
         <div>
@@ -122,3 +124,10 @@ function toggle(id: string) {
     </div>
   </div>
 </template>
+
+<style scoped>
+.visual-banner.compliance {
+  margin-top: 18px;
+  background-image: url('../assets/compliance-visual.png');
+}
+</style>

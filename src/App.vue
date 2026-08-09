@@ -32,6 +32,7 @@ onMounted(() => setTheme(state.theme))
 
 <template>
   <div class="app-shell">
+    <div class="app-bg" aria-hidden="true"></div>
     <aside class="sidebar">
       <div class="brand-mark">
         <div class="brand-icon">LH</div>
