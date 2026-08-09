@@ -496,9 +496,9 @@ input.control {
 select.control {
   flex: 0 0 auto;
   min-width: 0;
-  width: 160px;
-  max-width: 220px;
-  padding-right: 32px;
+  width: auto;
+  max-width: none;
+  padding: 9px 26px 9px 10px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
