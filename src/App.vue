@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import {
   ClipboardList,
@@ -27,7 +27,19 @@ const pageTitle = computed(() => {
   return item?.label ?? '学习管理'
 })
 
-onMounted(() => setTheme(state.theme))
+function syncFavicon() {
+  const link = document.querySelector<HTMLLinkElement>('link[rel="icon"]')
+  if (link) {
+    link.href = state.theme === 'dark' ? '/favicon.png' : '/favicon-light.png'
+  }
+}
+
+onMounted(() => {
+  setTheme(state.theme)
+  syncFavicon()
+})
+
+watch(() => state.theme, syncFavicon)
 </script>
 
 <template>
@@ -35,7 +47,7 @@ onMounted(() => setTheme(state.theme))
     <div class="app-bg" aria-hidden="true"></div>
     <aside class="sidebar">
       <div class="brand-mark">
-        <div class="brand-icon">LH</div>
+        <div class="brand-icon brand-logo"></div>
         <div>
           <strong>Learning Hub</strong>
           <small>12 周双主线</small>

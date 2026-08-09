@@ -21,7 +21,10 @@ function toggle(id: string) {
 
     <div class="disclaimer">{{ complianceDisclaimer }}</div>
 
-    <div class="visual-banner compliance" aria-hidden="true"></div>
+    <div class="page-hero-row">
+      <div class="visual-banner compliance" aria-hidden="true"></div>
+      <div class="spot-tile compliance-spot" aria-hidden="true"></div>
+    </div>
 
     <div class="page-section">
       <div class="section-head">
@@ -127,7 +130,12 @@ function toggle(id: string) {
 
 <style scoped>
 .visual-banner.compliance {
-  margin-top: 18px;
-  background-image: url('../assets/compliance-visual.png');
+  --banner-image: url('../assets/compliance-visual.png');
+  --banner-image-light: url('../assets/compliance-visual-light.png');
+}
+
+.compliance-spot {
+  --spot-image: url('../assets/spot-compliance.png');
+  --spot-image-light: url('../assets/spot-compliance-light.png');
 }
 </style>

@@ -78,7 +78,10 @@ function scrollToWeek(id: number) {
       </select>
     </div>
 
-    <div class="visual-banner roadmap" aria-hidden="true"></div>
+    <div class="page-hero-row">
+      <div class="visual-banner roadmap" aria-hidden="true"></div>
+      <div class="spot-tile roadmap-spot" aria-hidden="true"></div>
+    </div>
 
     <div class="page-section">
       <div class="panel panel-pad">
@@ -164,7 +167,12 @@ function scrollToWeek(id: number) {
 
 <style scoped>
 .visual-banner.roadmap {
-  margin-top: 18px;
-  background-image: url('../assets/roadmap-visual.png');
+  --banner-image: url('../assets/roadmap-visual.png');
+  --banner-image-light: url('../assets/roadmap-visual-light.png');
+}
+
+.roadmap-spot {
+  --spot-image: url('../assets/spot-roadmap.png');
+  --spot-image-light: url('../assets/spot-roadmap-light.png');
 }
 </style>

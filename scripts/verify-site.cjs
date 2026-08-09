@@ -38,6 +38,36 @@ async function main() {
       if (overflow > 2) {
         throw new Error(`${prefix} ${route.path}: horizontal overflow ${overflow}px`)
       }
+      const bannerCount = await page.locator('.visual-banner').count()
+      if (bannerCount > 0) {
+        const bannerBg = await page
+          .locator('.visual-banner')
+          .first()
+          .evaluate((el) => getComputedStyle(el).backgroundImage)
+        if (prefix === 'desktop' && bannerBg.includes('-light')) {
+          throw new Error(`${prefix} ${route.path}: dark mode loaded light banner`)
+        }
+        if (prefix === 'mobile' && bannerBg.includes('-light')) {
+          throw new Error(`${prefix} ${route.path}: dark mode loaded light banner`)
+        }
+      }
+      const spotCount = await page.locator('.spot-tile').count()
+      if (spotCount > 0) {
+        const spotBg = await page
+          .locator('.spot-tile')
+          .first()
+          .evaluate((el) => getComputedStyle(el).backgroundImage)
+        if (spotBg.includes('-light')) {
+          throw new Error(`${prefix} ${route.path}: dark mode loaded light spot`)
+        }
+      }
+      const favicon = await page
+        .locator('link[rel="icon"]')
+        .getAttribute('href')
+        .catch(() => '')
+      if (favicon?.includes('-light')) {
+        throw new Error(`${prefix}: dark mode loaded light favicon`)
+      }
       const clippedText = await page.evaluate(() => {
         const bad = []
         const selectors = 'h1,h2,h3,h4,p,li,span,strong,small,a,label,td,th'
@@ -90,8 +120,70 @@ async function main() {
     await context.close()
   }
 
+  async function checkLightTheme() {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 } })
+    await context.addInitScript(() => {
+      localStorage.setItem(
+        'learning-hub-v1',
+        JSON.stringify({ version: 1, done: [], closed: [], softwareDone: [], theme: 'light', filter: 'all' }),
+      )
+    })
+    const page = await context.newPage()
+    const errors = []
+    page.on('console', (message) => {
+      if (message.type() === 'error') errors.push(message.text())
+    })
+    page.on('pageerror', (error) => errors.push(error.message))
+    for (const route of routes) {
+      await page.goto(`${baseUrl}${route.path}`, { waitUntil: 'networkidle' })
+      await page.waitForTimeout(200)
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - window.innerWidth,
+      )
+      if (overflow > 2) {
+        throw new Error(`light ${route.path}: horizontal overflow ${overflow}px`)
+      }
+      const theme = await page.evaluate(() => document.documentElement.dataset.theme)
+      if (theme !== 'light') {
+        throw new Error(`light ${route.path}: theme did not apply`)
+      }
+      const bannerCount = await page.locator('.visual-banner').count()
+      if (bannerCount > 0) {
+        const bannerBg = await page
+          .locator('.visual-banner')
+          .first()
+          .evaluate((el) => getComputedStyle(el).backgroundImage)
+        if (!bannerBg.includes('-light')) {
+          throw new Error(`light ${route.path}: light mode loaded dark banner`)
+        }
+      }
+      const spotCount = await page.locator('.spot-tile').count()
+      if (spotCount > 0) {
+        const spotBg = await page
+          .locator('.spot-tile')
+          .first()
+          .evaluate((el) => getComputedStyle(el).backgroundImage)
+        if (!spotBg.includes('-light')) {
+          throw new Error(`light ${route.path}: light mode loaded dark spot`)
+        }
+      }
+      const favicon = await page
+        .locator('link[rel="icon"]')
+        .getAttribute('href')
+        .catch(() => '')
+      if (!favicon?.includes('-light')) {
+        throw new Error(`light: light mode loaded dark favicon`)
+      }
+    }
+    if (errors.length) {
+      throw new Error(`light theme errors: ${errors.join(' | ')}`)
+    }
+    await context.close()
+  }
+
   await checkViewport(1440, 900, 'desktop')
   await checkViewport(390, 844, 'mobile')
+  await checkLightTheme()
   await browser.close()
   console.log('PLAYWRIGHT OK')
 }

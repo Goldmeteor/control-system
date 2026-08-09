@@ -36,7 +36,10 @@ const phaseCounts = computed(() =>
       <span class="tiny">当前：Week {{ currentWeek === 13 ? '12 已完成' : currentWeek || '未开始' }}</span>
     </div>
 
-    <div class="visual-banner dashboard" aria-hidden="true"></div>
+    <div class="page-hero-row">
+      <div class="visual-banner dashboard" aria-hidden="true"></div>
+      <div class="spot-tile dashboard-spot" aria-hidden="true"></div>
+    </div>
 
     <div class="stat-grid">
       <div class="stat-card">
@@ -164,7 +167,12 @@ const phaseCounts = computed(() =>
 
 <style scoped>
 .visual-banner.dashboard {
-  margin: 18px 0 20px;
-  background-image: url('../assets/dashboard-visual.png');
+  --banner-image: url('../assets/dashboard-visual.png');
+  --banner-image-light: url('../assets/dashboard-visual-light.png');
+}
+
+.dashboard-spot {
+  --spot-image: url('../assets/spot-dashboard.png');
+  --spot-image-light: url('../assets/spot-dashboard-light.png');
 }
 </style>

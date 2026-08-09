@@ -64,7 +64,10 @@ function categoryStats(categoryIndex: number, category: SoftwareCategory) {
       </select>
     </div>
 
-    <div class="visual-banner software" aria-hidden="true"></div>
+    <div class="page-hero-row">
+      <div class="visual-banner software" aria-hidden="true"></div>
+      <div class="spot-tile software-spot" aria-hidden="true"></div>
+    </div>
 
     <div class="page-section category-grid">
       <section
@@ -119,7 +122,12 @@ function categoryStats(categoryIndex: number, category: SoftwareCategory) {
 
 <style scoped>
 .visual-banner.software {
-  margin-top: 18px;
-  background-image: url('../assets/software-visual.png');
+  --banner-image: url('../assets/software-visual.png');
+  --banner-image-light: url('../assets/software-visual-light.png');
+}
+
+.software-spot {
+  --spot-image: url('../assets/spot-software.png');
+  --spot-image-light: url('../assets/spot-software-light.png');
 }
 </style>
