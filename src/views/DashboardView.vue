@@ -176,3 +176,4 @@ const phaseCounts = computed(() =>
   --spot-image-light: url('../assets/spot-dashboard-light.png');
 }
 </style>
+
