@@ -167,12 +167,12 @@ function scrollToWeek(id: number) {
 
 <style scoped>
 .visual-banner.roadmap {
-  --banner-image: url('../assets/roadmap-visual.png');
-  --banner-image-light: url('../assets/roadmap-visual-light.png');
+  --banner-image: url('../assets/roadmap-visual.webp');
+  --banner-image-light: url('../assets/roadmap-visual-light.webp');
 }
 
 .roadmap-spot {
-  --spot-image: url('../assets/spot-roadmap.png');
-  --spot-image-light: url('../assets/spot-roadmap-light.png');
+  --spot-image: url('../assets/spot-roadmap.webp');
+  --spot-image-light: url('../assets/spot-roadmap-light.webp');
 }
 </style>

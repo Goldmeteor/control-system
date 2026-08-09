@@ -167,13 +167,13 @@ const phaseCounts = computed(() =>
 
 <style scoped>
 .visual-banner.dashboard {
-  --banner-image: url('../assets/dashboard-visual.png');
-  --banner-image-light: url('../assets/dashboard-visual-light.png');
+  --banner-image: url('../assets/dashboard-visual.webp');
+  --banner-image-light: url('../assets/dashboard-visual-light.webp');
 }
 
 .dashboard-spot {
-  --spot-image: url('../assets/spot-dashboard.png');
-  --spot-image-light: url('../assets/spot-dashboard-light.png');
+  --spot-image: url('../assets/spot-dashboard.webp');
+  --spot-image-light: url('../assets/spot-dashboard-light.webp');
 }
 </style>
 

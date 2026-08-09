@@ -130,12 +130,12 @@ function toggle(id: string) {
 
 <style scoped>
 .visual-banner.compliance {
-  --banner-image: url('../assets/compliance-visual.png');
-  --banner-image-light: url('../assets/compliance-visual-light.png');
+  --banner-image: url('../assets/compliance-visual.webp');
+  --banner-image-light: url('../assets/compliance-visual-light.webp');
 }
 
 .compliance-spot {
-  --spot-image: url('../assets/spot-compliance.png');
-  --spot-image-light: url('../assets/spot-compliance-light.png');
+  --spot-image: url('../assets/spot-compliance.webp');
+  --spot-image-light: url('../assets/spot-compliance-light.webp');
 }
 </style>

@@ -41,7 +41,7 @@
 :root[data-theme='light'] .app-bg {
   opacity: 0.24;
   filter: none;
-  background-image: url('./assets/learning-hub-bg-light.png');
+  background-image: url('./assets/learning-hub-bg-light.webp');
 }
 
 * {
@@ -89,7 +89,7 @@ a {
   z-index: 0;
   pointer-events: none;
   opacity: 0.22;
-  background-image: url('./assets/learning-hub-bg.png');
+  background-image: url('./assets/learning-hub-bg.webp');
   background-size: cover;
   background-position: center;
 }
@@ -132,14 +132,14 @@ a {
 }
 
 .brand-logo {
-  background-image: url('./assets/logo.png');
+  background-image: url('./assets/logo.webp');
   background-size: cover;
   background-position: center;
   background-color: #07111F;
 }
 
 :root[data-theme='light'] .brand-logo {
-  background-image: url('./assets/logo-light.png');
+  background-image: url('./assets/logo-light.webp');
   background-color: #EEF5FB;
 }
 

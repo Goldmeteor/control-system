@@ -122,12 +122,12 @@ function categoryStats(categoryIndex: number, category: SoftwareCategory) {
 
 <style scoped>
 .visual-banner.software {
-  --banner-image: url('../assets/software-visual.png');
-  --banner-image-light: url('../assets/software-visual-light.png');
+  --banner-image: url('../assets/software-visual.webp');
+  --banner-image-light: url('../assets/software-visual-light.webp');
 }
 
 .software-spot {
-  --spot-image: url('../assets/spot-software.png');
-  --spot-image-light: url('../assets/spot-software-light.png');
+  --spot-image: url('../assets/spot-software.webp');
+  --spot-image-light: url('../assets/spot-software-light.webp');
 }
 </style>
