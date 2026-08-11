@@ -8,7 +8,6 @@ import {
   Route,
   Scale,
   Settings,
-  ShieldCheck,
   Sun,
 } from '@lucide/vue'
 import { setTheme, state } from './store'
@@ -17,15 +16,16 @@ const route = useRoute()
 
 const navItems = [
   { to: '/', label: '总览', icon: LayoutDashboard },
-  { to: '/roadmap', label: '12周路线', icon: Route },
+  { to: '/roadmap', label: '路径规划', icon: Route },
   { to: '/software', label: '软件工程', icon: ClipboardList },
-  { to: '/compliance', label: '备案合规', icon: ShieldCheck },
   { to: '/legal', label: '法律学习', icon: Scale },
-  { to: '/settings', label: '数据', icon: Settings },
+  { to: '/settings', label: '设置', icon: Settings },
 ]
 
 const pageTitle = computed(() => {
-  const item = navItems.find((nav) => nav.to === route.path)
+  const item = navItems.find(
+    (nav) => nav.to === route.path || (nav.to === '/roadmap' && route.path === '/path-planning'),
+  )
   return item?.label ?? '学习管理'
 })
 

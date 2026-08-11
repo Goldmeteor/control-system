@@ -1,29 +1,49 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { ChevronDown } from '@lucide/vue'
+import ModuleHeader from '../components/ModuleHeader.vue'
 import { weekPhases, weeks } from '../data/weeks'
-import { setFilter, state, toggleTask, toggleWeek } from '../store'
+import { state, toggleTask } from '../store'
 import type { Week } from '../types'
 
+const start = new Date('2026-08-10T00:00:00+08:00')
+const currentWeek = computed(() => {
+  const diff = Math.floor((Date.now() - start.getTime()) / 604800000) + 1
+  return diff < 1 ? 1 : diff > 12 ? 12 : diff
+})
+
 const query = ref('')
+const phaseFilter = ref('all')
+const openWeekId = ref<number | null>(currentWeek.value)
+const openAll = ref(false)
+
+const banner = {
+  dark: '../assets/path-hero-dark.webp',
+  light: '../assets/path-hero-light.webp',
+}
+
+const spot = {
+  dark: '../assets/path-spot-dark.webp',
+  light: '../assets/path-spot-light.webp',
+}
 
 const filteredWeeks = computed(() => {
   const q = query.value.trim().toLowerCase()
   return weeks.filter((week) => {
-    const matchPhase = state.filter === 'all' || week.phase === state.filter
+    const matchPhase = phaseFilter.value === 'all' || week.phase === phaseFilter.value
     if (!matchPhase) return false
     if (!q) return true
-    const searchText = [
+    return [
       week.title,
       week.tag,
       week.objective,
       ...week.groups.flatMap((group) => group.tasks),
-      ...week.softwareLine,
       week.deliverable,
       week.gate,
     ]
       .join(' ')
       .toLowerCase()
-    return searchText.includes(q)
+      .includes(q)
   })
 })
 
@@ -41,12 +61,13 @@ function weekDone(week: Week) {
   return { done, total, percent: total === 0 ? 0 : Math.round((done / total) * 100) }
 }
 
+function toggleWeek(id: number) {
+  openAll.value = false
+  openWeekId.value = openWeekId.value === id ? null : id
+}
+
 function toggleAll() {
-  if (state.closed.length === weeks.length) {
-    state.closed = []
-  } else {
-    state.closed = weeks.map((week) => week.id)
-  }
+  openAll.value = !openAll.value
 }
 
 function scrollToWeek(id: number) {
@@ -56,49 +77,47 @@ function scrollToWeek(id: number) {
 
 <template>
   <div class="page-section">
-    <div class="section-head">
-      <div>
-        <h1>12 周双主线路线</h1>
-        <p>每周目标、任务清单、工程副线与过关条件</p>
-      </div>
-      <button class="control" type="button" @click="toggleAll">
-        {{ state.closed.length === weeks.length ? '全部展开' : '全部折叠' }}
-      </button>
-    </div>
+    <ModuleHeader
+      title="路径规划 · 12周科研路线"
+      subtitle="移动机器人路径规划研究主线，从算法实现到研究提案的完整推进路线"
+      :banner="banner"
+      :spot="spot"
+      compact
+    >
+      <template #actions>
+        <span class="tiny">当前：第 {{ currentWeek }} 周</span>
+        <button class="control" type="button" @click="toggleAll">
+          {{ openAll ? '全部折叠' : '全部展开' }}
+        </button>
+      </template>
+    </ModuleHeader>
 
     <div class="search-row">
       <input v-model="query" class="control" type="search" placeholder="搜索周次、算法、任务…" />
       <select
         class="control"
-        :value="state.filter"
-        @change="setFilter(($event.target as HTMLSelectElement).value)"
+        :value="phaseFilter"
+        @change="phaseFilter = ($event.target as HTMLSelectElement).value"
       >
         <option value="all">全部阶段</option>
         <option v-for="phase in weekPhases" :key="phase.id" :value="phase.id">{{ phase.label }}</option>
       </select>
     </div>
 
-    <div class="page-hero-row">
-      <div class="visual-banner roadmap" aria-hidden="true"></div>
-      <div class="spot-tile roadmap-spot" aria-hidden="true"></div>
-    </div>
-
-    <div class="page-section">
-      <div class="panel panel-pad">
-        <div class="timeline">
-          <div
-            v-for="week in weeks"
-            :key="week.id"
-            class="tl"
-            :class="{ done: weekDone(week).done === weekDone(week).total }"
-            @click="scrollToWeek(week.id)"
-          >
-            <div class="tl-dot" :style="{ borderColor: week.color }">
-              {{ weekDone(week).percent === 100 ? '✓' : week.id }}
-            </div>
-            <b>Week {{ week.id }}</b>
-            <small>{{ week.date }}</small>
+    <div class="panel panel-pad">
+      <div class="timeline">
+        <div
+          v-for="week in weeks"
+          :key="week.id"
+          class="tl"
+          :class="{ done: weekDone(week).done === weekDone(week).total, active: openAll || openWeekId === week.id }"
+          @click="scrollToWeek(week.id)"
+        >
+          <div class="tl-dot" :style="{ borderColor: week.color }">
+            {{ weekDone(week).percent === 100 ? '✓' : week.id }}
           </div>
+          <b>Week {{ week.id }}</b>
+          <small>{{ week.date }}</small>
         </div>
       </div>
     </div>
@@ -118,11 +137,18 @@ function scrollToWeek(id: number) {
             <p>{{ week.date }}　{{ week.tag }}</p>
           </div>
           <div class="week-score">
-            <div class="mini-ring" :style="{ '--p': weekDone(week).percent }" :data-p="`${weekDone(week).percent}%`"></div>
-            <span class="chev">⌄</span>
+            <div
+              class="mini-ring"
+              :style="{ '--p': weekDone(week).percent }"
+              :data-p="`${weekDone(week).percent}%`"
+            ></div>
+            <ChevronDown
+              :size="19"
+              :style="{ transform: openAll || openWeekId === week.id ? 'rotate(180deg)' : 'none' }"
+            />
           </div>
         </div>
-        <div v-show="!state.closed.includes(week.id)" class="week-body">
+        <div v-show="openAll || openWeekId === week.id" class="week-body">
           <div class="objective"><strong>本周目标：</strong>{{ week.objective }}</div>
           <div class="task-grid">
             <div v-for="(group, groupIndex) in week.groups" :key="group.name" class="task-group">
@@ -142,12 +168,6 @@ function scrollToWeek(id: number) {
               </label>
             </div>
           </div>
-          <div class="software-line">
-            <b>软件工程副线</b>
-            <ul>
-              <li v-for="item in week.softwareLine" :key="item">{{ item }}</li>
-            </ul>
-          </div>
           <div class="week-bottom">
             <div class="deliver">
               <b>本周交付</b>
@@ -164,15 +184,3 @@ function scrollToWeek(id: number) {
     </div>
   </div>
 </template>
-
-<style scoped>
-.visual-banner.roadmap {
-  --banner-image: url('../assets/roadmap-visual.webp');
-  --banner-image-light: url('../assets/roadmap-visual-light.webp');
-}
-
-.roadmap-spot {
-  --spot-image: url('../assets/spot-roadmap.webp');
-  --spot-image-light: url('../assets/spot-roadmap-light.webp');
-}
-</style>

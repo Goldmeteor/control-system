@@ -13,7 +13,6 @@ export interface Week {
   tag: string
   objective: string
   groups: TaskGroup[]
-  softwareLine: string[]
   deliverable: string
   gate: string
 }

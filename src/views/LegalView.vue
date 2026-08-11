@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import {
   BookOpenCheck,
   ChevronDown,
@@ -7,8 +8,12 @@ import {
   FileText,
   ListChecks,
   Scale,
+  ShieldCheck,
 } from '@lucide/vue'
+import ModuleHeader from '../components/ModuleHeader.vue'
+import { complianceDisclaimer, complianceLicenses } from '../data/compliance'
 import {
+  legalComplianceQuick,
   legalChecklists,
   legalPhases,
   legalResources,
@@ -20,19 +25,40 @@ import {
 import { legalDoneCount, legalTotalCount, state, toggleTask } from '../store'
 import type { LegalWeek } from '../types'
 
-type TabId = 'weeks' | 'resources' | 'checklists' | 'templates'
+type TabId = 'weeks' | 'resources' | 'checklists' | 'compliance' | 'templates'
 
 const activeTab = ref<TabId>('weeks')
+const route = useRoute()
 const openWeekId = ref<number | null>(1)
+const openComplianceId = ref<string | null>('icp-record')
 const query = ref('')
 const phaseFilter = ref('all')
+
+watch(
+  () => route.query.tab,
+  (tab) => {
+    if (tab === 'compliance') activeTab.value = 'compliance'
+  },
+  { immediate: true },
+)
 
 const tabs = [
   { id: 'weeks', label: '16周任务', icon: BookOpenCheck },
   { id: 'resources', label: '教程与教材', icon: ExternalLink },
   { id: 'checklists', label: '自查清单', icon: ListChecks },
+  { id: 'compliance', label: '备案合规', icon: ShieldCheck },
   { id: 'templates', label: '模板', icon: FileText },
 ] as const
+
+const banner = {
+  dark: '../assets/legal-hero-dark.webp',
+  light: '../assets/legal-hero-light.webp',
+}
+
+const spot = {
+  dark: '../assets/legal-spot-dark.webp',
+  light: '../assets/legal-spot-light.webp',
+}
 
 const filteredWeeks = computed(() => {
   const q = query.value.trim().toLowerCase()
@@ -91,6 +117,10 @@ function toggleWeek(id: number) {
   openWeekId.value = openWeekId.value === id ? null : id
 }
 
+function toggleCompliance(id: string) {
+  openComplianceId.value = openComplianceId.value === id ? null : id
+}
+
 function scrollToWeek(id: number) {
   document.getElementById(`legal-week-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
@@ -98,21 +128,20 @@ function scrollToWeek(id: number) {
 
 <template>
   <div class="page-section">
-    <div class="section-head">
-      <div>
-        <h1>法律学习</h1>
-        <p>{{ legalSummary.duration }} · {{ legalSummary.weeklyHours }} · 工作生活均衡</p>
-      </div>
-      <span class="tiny">实用防坑路线，不替代法学学位与执业资格</span>
-    </div>
+    <ModuleHeader
+      title="法律学习"
+      :subtitle="`${legalSummary.duration} · ${legalSummary.weeklyHours} · 工作生活均衡`"
+      :banner="banner"
+      :spot="spot"
+      compact
+    >
+      <template #actions>
+        <span class="tiny">实用防坑路线，不替代法学学位与执业资格</span>
+      </template>
+    </ModuleHeader>
 
     <div class="disclaimer">
       目标：{{ legalSummary.success }}。教材版本和法规会更新，以国家法律法规数据库最新文本为准。
-    </div>
-
-    <div class="page-hero-row">
-      <div class="visual-banner legal" aria-hidden="true"></div>
-      <div class="spot-tile legal-spot" aria-hidden="true"></div>
     </div>
 
     <div class="stat-grid">
@@ -129,7 +158,7 @@ function scrollToWeek(id: number) {
       <div class="stat-card">
         <strong>{{ legalTotalCount }}</strong>
         <span>可勾选任务</span>
-        <small>周任务 + 两份自查清单</small>
+        <small>周任务 + 三份自查清单</small>
       </div>
       <div class="stat-card">
         <strong>{{ legalDoneCount }}</strong>
@@ -353,6 +382,125 @@ function scrollToWeek(id: number) {
       </div>
     </div>
 
+    <div v-else-if="activeTab === 'compliance'" class="page-section">
+      <div class="section-head">
+        <div>
+          <h2>互联网合规速查</h2>
+          <p>先判断业务类型，再办理对应备案或许可证</p>
+        </div>
+      </div>
+      <div class="compliance-quick-grid">
+        <div v-for="item in legalComplianceQuick" :key="item.id" class="compliance-quick-card">
+          <ShieldCheck :size="18" />
+          <div>
+            <b>{{ item.title }}</b>
+            <span>{{ item.text }}</span>
+            <small>{{ item.ref }}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="disclaimer">{{ complianceDisclaimer }}</div>
+
+      <div class="section-head">
+        <div>
+          <h2>备案与资质对比</h2>
+          <p>一句话区分适用场景</p>
+        </div>
+      </div>
+      <div class="panel panel-pad table-wrap">
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th>名称</th>
+              <th>类型</th>
+              <th>一句话</th>
+              <th>适用场景</th>
+              <th>主体</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in complianceLicenses" :key="item.id">
+              <td><strong>{{ item.name }}</strong></td>
+              <td>{{ item.kind }}</td>
+              <td>{{ item.short }}</td>
+              <td>{{ item.scenario }}</td>
+              <td>{{ item.subject }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="page-section accordion">
+        <article
+          v-for="item in complianceLicenses"
+          :key="item.id"
+          class="compliance-card"
+          :style="{ '--comp': item.color }"
+        >
+          <button class="compliance-head" type="button" @click="toggleCompliance(item.id)">
+            <span class="kind-badge">{{ item.kind }}</span>
+            <div>
+              <h2>{{ item.name }}</h2>
+              <p>{{ item.short }}</p>
+            </div>
+            <ChevronDown
+              :size="20"
+              :style="{ transform: openComplianceId === item.id ? 'rotate(180deg)' : 'none' }"
+            />
+          </button>
+          <div v-if="openComplianceId === item.id" class="compliance-body">
+            <div class="detail-grid">
+              <div class="detail-block">
+                <h3>适用场景</h3>
+                <p>{{ item.scenario }}</p>
+              </div>
+              <div class="detail-block">
+                <h3>主体限制</h3>
+                <p>{{ item.subject }}</p>
+              </div>
+              <div class="detail-block">
+                <h3>审批机构</h3>
+                <p>{{ item.authority }}</p>
+              </div>
+              <div class="detail-block">
+                <h3>预计时限</h3>
+                <p>{{ item.timeline }}</p>
+              </div>
+              <div class="detail-block">
+                <h3>关键条件</h3>
+                <ul>
+                  <li v-for="condition in item.conditions" :key="condition">{{ condition }}</li>
+                </ul>
+              </div>
+              <div class="detail-block">
+                <h3>材料清单</h3>
+                <ul>
+                  <li v-for="material in item.materials" :key="material">{{ material }}</li>
+                </ul>
+              </div>
+              <div class="detail-block full-width">
+                <h3>办理步骤</h3>
+                <ol class="step-list">
+                  <li v-for="(step, index) in item.steps" :key="step.name">
+                    <strong>{{ index + 1 }}. {{ step.name }}</strong>
+                    <br />
+                    {{ step.detail }}
+                  </li>
+                </ol>
+              </div>
+              <div class="detail-block full-width">
+                <h3>常见坑</h3>
+                <ul>
+                  <li v-for="pitfall in item.pitfalls" :key="pitfall">{{ pitfall }}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+
     <div v-else class="page-section">
       <div class="section-head">
         <div>
@@ -378,19 +526,9 @@ function scrollToWeek(id: number) {
 </template>
 
 <style scoped>
-.visual-banner.legal {
-  --banner-image: url('../assets/legal-hero-dark.webp');
-  --banner-image-light: url('../assets/legal-hero-light.webp');
-}
-
-.legal-spot {
-  --spot-image: url('../assets/legal-spot-dark.webp');
-  --spot-image-light: url('../assets/legal-spot-light.webp');
-}
-
 .tab-row {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -410,6 +548,53 @@ function scrollToWeek(id: number) {
   color: var(--text);
   border-color: rgba(110, 231, 255, 0.45);
   background: rgba(110, 231, 255, 0.09);
+}
+
+.compliance-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 11px;
+  margin-bottom: 16px;
+}
+
+.compliance-quick-card {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel2);
+  padding: 12px;
+  color: var(--accent);
+}
+
+.compliance-quick-card > div {
+  min-width: 0;
+}
+
+.compliance-quick-card b {
+  display: block;
+  color: var(--text);
+  font-size: 0.88rem;
+  margin-bottom: 4px;
+}
+
+.compliance-quick-card span,
+.compliance-quick-card small {
+  display: block;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.compliance-quick-card span {
+  font-size: 0.8rem;
+}
+
+.compliance-quick-card small {
+  font-size: 0.7rem;
+  margin-top: 4px;
+  color: var(--accent);
 }
 
 .knowledge-block {
@@ -607,6 +792,10 @@ function scrollToWeek(id: number) {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
+  .compliance-quick-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .checklist-grid,
   .template-grid {
     grid-template-columns: 1fr;
@@ -622,6 +811,10 @@ function scrollToWeek(id: number) {
 @media (max-width: 560px) {
   .legal-timeline {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .compliance-quick-grid {
+    grid-template-columns: 1fr;
   }
 
   .lt-dot {

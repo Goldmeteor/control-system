@@ -197,6 +197,122 @@ export const softwareCategories: SoftwareCategory[] = [
       },
     ],
   },
+  {
+    id: 'weekly-line',
+    title: '12周工程副线',
+    description: '从原 12 周路线迁移而来的每周工程任务，按周推进并勾选。',
+    priority: '每周跟随科研主线同步推进',
+    sections: [
+      {
+        name: '第 1 周',
+        items: [
+          '初始化 Git 仓库、分支策略与 README',
+          '配置 Python 虚拟环境和统一依赖清单',
+          '熟悉 VS Code 调试与快捷键',
+          'LeetCode 基础数组/字符串 2 题',
+        ],
+      },
+      {
+        name: '第 2 周',
+        items: [
+          '用 pytest 建立第一组自动化测试',
+          '统一 CSV 输出与 matplotlib 制图脚本',
+          'Git 提交按“实现-测量-复盘”拆分',
+          'LeetCode 链表/哈希 2 题',
+        ],
+      },
+      {
+        name: '第 3 周',
+        items: [
+          '把随机种子、参数与实验版本写进配置',
+          '为采样算法补充类型注解和模块边界',
+          '更新方法谱系图与实验 README',
+          'LeetCode 树/图基础 2 题',
+        ],
+      },
+      {
+        name: '第 4 周',
+        items: [
+          '为仿真项目写最小可运行文档',
+          '用模块化接口隔离规划器与可视化',
+          '为动态障碍测试补充回归用例',
+          'LeetCode 动态规划入门 2 题',
+        ],
+      },
+      {
+        name: '第 5 周',
+        items: [
+          '用 requirements.txt / lock 文件固定环境',
+          '练习 Code Review 与提交信息规范',
+          '为复现实验建立结果目录结构',
+          'LeetCode 二分/滑动窗口 2 题',
+        ],
+      },
+      {
+        name: '第 6 周',
+        items: [
+          '用伪代码和类图整理改进模块',
+          '为消融实验抽象统一运行入口',
+          '用设计模式优化重复实验代码',
+          'LeetCode 图/回溯 2 题',
+        ],
+      },
+      {
+        name: '第 7 周',
+        items: [
+          '整理论文引用与 Zotero/文献目录',
+          '为对照矩阵编写可复用表格模板',
+          'Review 自己 8 周的代码与文档',
+          'LeetCode 每周 2-3 题维持手感',
+        ],
+      },
+      {
+        name: '第 8 周',
+        items: [
+          '整理个人项目作品集首页与 README',
+          '检查开源许可证、引用与依赖清单',
+          '把关键脚本抽成可复用工具',
+          'LeetCode 每周 2-3 题',
+        ],
+      },
+      {
+        name: '第 9 周',
+        items: [
+          '维护统一 Git 仓库与分支协作',
+          '为页面写基础单元测试',
+          '代码规范与格式化工具接入',
+          'LeetCode 每周 2-3 题',
+        ],
+      },
+      {
+        name: '第 10 周',
+        items: [
+          '为接口写测试与 OpenAPI 文档',
+          '用环境变量管理密钥，不硬编码',
+          '数据库变更纳入版本管理',
+          'LeetCode 每周 2-3 题',
+        ],
+      },
+      {
+        name: '第 11 周',
+        items: [
+          'Nginx 日志、journalctl 与 tail -f 排错',
+          'Dockerfile 与部署文档',
+          'CDN 原理与缓存刷新',
+          'LeetCode 每周 2-3 题',
+        ],
+      },
+      {
+        name: '第 12 周',
+        items: [
+          '检查日志留存、隐私政策与用户协议',
+          '整理开源许可证与依赖合规',
+          '输出 10 分钟项目讲解',
+          'LeetCode 每周 2-3 题',
+        ],
+      },
+    ],
+  },
 ]
 
 export const softwarePriorities = [

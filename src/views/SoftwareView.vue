@@ -1,11 +1,35 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import ModuleHeader from '../components/ModuleHeader.vue'
 import { softwareCategories, softwarePriorities } from '../data/software'
 import { state, toggleTask } from '../store'
 import type { SoftwareCategory } from '../types'
 
+const start = new Date('2026-08-10T00:00:00+08:00')
+const currentWeek = computed(() => {
+  const diff = Math.floor((Date.now() - start.getTime()) / 604800000) + 1
+  return diff < 1 ? 1 : diff > 12 ? 12 : diff
+})
+
+const currentPhase = computed(() => {
+  if (currentWeek.value <= 4) return '算法与实验阶段'
+  if (currentWeek.value <= 8) return '复现与研究阶段'
+  if (currentWeek.value <= 10) return '全栈开发阶段'
+  return '部署与合规阶段'
+})
+
 const query = ref('')
 const activeCategory = ref('all')
+
+const banner = {
+  dark: '../assets/software-hero-dark.webp',
+  light: '../assets/software-hero-light.webp',
+}
+
+const spot = {
+  dark: '../assets/software-spot-dark.webp',
+  light: '../assets/software-spot-light.webp',
+}
 
 const filteredCategories = computed(() => {
   const q = query.value.trim().toLowerCase()
@@ -43,12 +67,17 @@ function categoryStats(categoryIndex: number, category: SoftwareCategory) {
 
 <template>
   <div class="page-section">
-    <div class="section-head">
-      <div>
-        <h1>软件工程清单</h1>
-        <p>专业地基、全栈开发、部署安全、备案合规与工程素养</p>
-      </div>
-    </div>
+    <ModuleHeader
+      title="软件工程"
+      subtitle="工程地基、全栈开发、部署安全、工程素养与每周工程副线"
+      :banner="banner"
+      :spot="spot"
+      compact
+    >
+      <template #actions>
+        <span class="tiny">当前：{{ currentPhase }} · Week {{ currentWeek }}</span>
+      </template>
+    </ModuleHeader>
 
     <div class="search-row">
       <input v-model="query" class="control" type="search" placeholder="搜索课程、技能、项目…" />
@@ -64,9 +93,17 @@ function categoryStats(categoryIndex: number, category: SoftwareCategory) {
       </select>
     </div>
 
-    <div class="page-hero-row">
-      <div class="visual-banner software" aria-hidden="true"></div>
-      <div class="spot-tile software-spot" aria-hidden="true"></div>
+    <div class="page-section software-info-grid">
+      <div class="stat-card">
+        <strong>{{ currentPhase }}</strong>
+        <span>当前阶段</span>
+        <small>软件工程副线按 12 周节奏推进</small>
+      </div>
+      <div class="stat-card">
+        <strong>1. {{ softwarePriorities[0] }}</strong>
+        <span>首要优先级</span>
+        <small>时间有限时先补地基，再做产出型项目</small>
+      </div>
     </div>
 
     <div class="page-section category-grid">
@@ -121,13 +158,44 @@ function categoryStats(categoryIndex: number, category: SoftwareCategory) {
 </template>
 
 <style scoped>
-.visual-banner.software {
-  --banner-image: url('../assets/software-visual.webp');
-  --banner-image-light: url('../assets/software-visual-light.webp');
+.software-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+  margin-top: 0;
 }
 
-.software-spot {
-  --spot-image: url('../assets/spot-software.webp');
-  --spot-image-light: url('../assets/spot-software-light.webp');
+.software-info-grid .stat-card strong {
+  font-size: 1.12rem;
+  line-height: 1.35;
+}
+
+.category-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.category-grid .soft-sections {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 1120px) {
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .category-grid .soft-sections {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .software-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .category-grid .soft-sections {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
