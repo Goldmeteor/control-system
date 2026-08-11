@@ -1,5 +1,6 @@
 import { computed, reactive, watch } from 'vue'
 import type { PersistedState } from './types'
+import { allLegalTaskIds } from './data/legal'
 import { allSoftwareTaskIds } from './data/software'
 import { allWeekTaskIds } from './data/weeks'
 
@@ -49,7 +50,8 @@ watch(
 
 const weekTaskIds = allWeekTaskIds()
 const softwareTaskIds = allSoftwareTaskIds()
-const allTaskIds = [...weekTaskIds, ...softwareTaskIds]
+const legalTaskIds = allLegalTaskIds()
+const allTaskIds = [...weekTaskIds, ...softwareTaskIds, ...legalTaskIds]
 
 const weekDoneCount = computed(() =>
   weekTaskIds.filter((id) => state.done.includes(id)).length,
@@ -57,6 +59,10 @@ const weekDoneCount = computed(() =>
 const softwareDoneCount = computed(() =>
   softwareTaskIds.filter((id) => state.done.includes(id)).length,
 )
+const legalDoneCount = computed(() =>
+  legalTaskIds.filter((id) => state.done.includes(id)).length,
+)
+const legalTotalCount = computed(() => legalTaskIds.length)
 const doneCount = computed(() => state.done.filter((id) => allTaskIds.includes(id)).length)
 const totalCount = computed(() => allTaskIds.length)
 const percent = computed(() =>
@@ -131,8 +137,11 @@ export {
   state,
   weekTaskIds,
   softwareTaskIds,
+  legalTaskIds,
   weekDoneCount,
   softwareDoneCount,
+  legalDoneCount,
+  legalTotalCount,
   doneCount,
   totalCount,
   percent,

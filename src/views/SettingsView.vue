@@ -5,6 +5,8 @@ import {
   doneCount,
   exportJson,
   importJson,
+  legalDoneCount,
+  legalTotalCount,
   resetProgress,
   setTheme,
   softwareDoneCount,
@@ -60,6 +62,11 @@ function clearProgress() {
         <strong>{{ softwareDoneCount }}</strong>
         <span>工程任务</span>
         <small>软件工程清单</small>
+      </div>
+      <div class="stat-card">
+        <strong>{{ legalDoneCount }}</strong>
+        <span>法律任务</span>
+        <small>{{ legalTotalCount }} 项总任务</small>
       </div>
       <div class="stat-card">
         <strong>{{ state.theme === 'dark' ? '深色' : '浅色' }}</strong>

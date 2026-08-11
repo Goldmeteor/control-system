@@ -1007,7 +1007,7 @@ button.control {
     top: 64px;
     z-index: 29;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     border-bottom: 1px solid var(--line);
     background: color-mix(in srgb, var(--bg) 86%, transparent);
     backdrop-filter: blur(14px);
@@ -1096,6 +1096,11 @@ button.control {
 
   .timeline {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .mobile-nav {
+    grid-template-columns: repeat(3, 1fr);
+    row-gap: 6px;
   }
 
   .tl-dot {

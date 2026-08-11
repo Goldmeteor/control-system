@@ -3,6 +3,7 @@ import DashboardView from './views/DashboardView.vue'
 import RoadmapView from './views/RoadmapView.vue'
 import SoftwareView from './views/SoftwareView.vue'
 import ComplianceView from './views/ComplianceView.vue'
+import LegalView from './views/LegalView.vue'
 import SettingsView from './views/SettingsView.vue'
 
 const router = createRouter({
@@ -12,6 +13,7 @@ const router = createRouter({
     { path: '/roadmap', name: 'roadmap', component: RoadmapView },
     { path: '/software', name: 'software', component: SoftwareView },
     { path: '/compliance', name: 'compliance', component: ComplianceView },
+    { path: '/legal', name: 'legal', component: LegalView },
     { path: '/settings', name: 'settings', component: SettingsView },
   ],
 })

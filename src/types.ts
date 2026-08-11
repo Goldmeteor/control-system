@@ -52,6 +52,51 @@ export interface ComplianceLicense {
   color: string
 }
 
+export interface LegalWeek {
+  id: number
+  phase: string
+  color: string
+  icon: string
+  title: string
+  tag: string
+  objective: string
+  groups: TaskGroup[]
+  deliverable: string
+  gate: string
+}
+
+export interface LegalResource {
+  id: string
+  category: string
+  title: string
+  link?: string
+  note: string
+}
+
+export interface LegalChecklistItem {
+  text: string
+  reference: string
+}
+
+export interface LegalChecklist {
+  id: string
+  title: string
+  description: string
+  items: LegalChecklistItem[]
+}
+
+export interface LegalTemplateField {
+  label: string
+  hint: string
+}
+
+export interface LegalTemplate {
+  id: string
+  title: string
+  description: string
+  fields: LegalTemplateField[]
+}
+
 export interface PersistedState {
   version: 1
   done: string[]

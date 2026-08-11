@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   Moon,
   Route,
+  Scale,
   Settings,
   ShieldCheck,
   Sun,
@@ -19,6 +20,7 @@ const navItems = [
   { to: '/roadmap', label: '12周路线', icon: Route },
   { to: '/software', label: '软件工程', icon: ClipboardList },
   { to: '/compliance', label: '备案合规', icon: ShieldCheck },
+  { to: '/legal', label: '法律学习', icon: Scale },
   { to: '/settings', label: '数据', icon: Settings },
 ]
 
@@ -30,7 +32,7 @@ const pageTitle = computed(() => {
 function syncFavicon() {
   const link = document.querySelector<HTMLLinkElement>('link[rel="icon"]')
   if (link) {
-    link.href = state.theme === 'dark' ? '/favicon.png' : '/favicon-light.png'
+    link.href = `${import.meta.env.BASE_URL}${state.theme === 'dark' ? 'favicon.png' : 'favicon-light.png'}`
   }
 }
 
@@ -50,7 +52,7 @@ watch(() => state.theme, syncFavicon)
         <div class="brand-icon brand-logo"></div>
         <div>
           <strong>Learning Hub</strong>
-          <small>12 周双主线</small>
+          <small>学习管理系统</small>
         </div>
       </div>
       <nav class="side-nav">
