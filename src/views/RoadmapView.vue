@@ -454,6 +454,10 @@ function scrollToWeek(id: number) {
 }
 
 @media (max-width: 860px) {
+  .path-timeline {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
   .tab-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -476,6 +480,12 @@ function scrollToWeek(id: number) {
 
   .resource-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .path-timeline {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 </style>
