@@ -15,7 +15,6 @@ import { complianceDisclaimer, complianceLicenses } from '../data/compliance'
 import {
   legalComplianceQuick,
   legalChecklists,
-  legalPhases,
   legalResources,
   legalSummary,
   legalWeekKnowledge,
@@ -32,7 +31,6 @@ const route = useRoute()
 const openWeekId = ref<number | null>(1)
 const openComplianceId = ref<string | null>('icp-record')
 const query = ref('')
-const phaseFilter = ref('all')
 
 watch(
   () => route.query.tab,
@@ -63,7 +61,6 @@ const spot = {
 const filteredWeeks = computed(() => {
   const q = query.value.trim().toLowerCase()
   return legalWeeks.filter((week) => {
-    if (phaseFilter.value !== 'all' && week.phase !== phaseFilter.value) return false
     if (!q) return true
     return [
       week.title,
@@ -78,13 +75,6 @@ const filteredWeeks = computed(() => {
       .includes(q)
   })
 })
-
-const phaseCounts = computed(() =>
-  legalPhases.map((phase) => ({
-    ...phase,
-    count: legalWeeks.filter((week) => week.phase === phase.id).length,
-  })),
-)
 
 const legalPercent = computed(() =>
   legalTotalCount.value === 0
@@ -140,10 +130,6 @@ function scrollToWeek(id: number) {
       </template>
     </ModuleHeader>
 
-    <div class="disclaimer">
-      目标：{{ legalSummary.success }}。教材版本和法规会更新，以国家法律法规数据库最新文本为准。
-    </div>
-
     <div class="stat-grid">
       <div class="stat-card">
         <strong>16 周</strong>
@@ -168,22 +154,6 @@ function scrollToWeek(id: number) {
     </div>
 
     <div class="page-section">
-      <div class="section-head">
-        <div>
-          <h2>阶段分布</h2>
-          <p>每四周切换一个学习重心</p>
-        </div>
-      </div>
-      <div class="stat-grid">
-        <div v-for="phase in phaseCounts" :key="phase.id" class="stat-card">
-          <strong>{{ phase.count }} 周</strong>
-          <span>{{ phase.label }}</span>
-          <small>{{ phase.range }}，共 {{ phase.count * 40 }} 小时</small>
-        </div>
-      </div>
-    </div>
-
-    <div class="page-section">
       <div class="tab-row">
         <button
           v-for="tab in tabs"
@@ -202,12 +172,6 @@ function scrollToWeek(id: number) {
     <div v-if="activeTab === 'weeks'" class="page-section">
       <div class="search-row">
         <input v-model="query" class="control" type="search" placeholder="搜索周次、主题、任务…" />
-        <select v-model="phaseFilter" class="control">
-          <option value="all">全部阶段</option>
-          <option v-for="phase in legalPhases" :key="phase.id" :value="phase.id">
-            {{ phase.label }}
-          </option>
-        </select>
       </div>
 
       <div class="panel panel-pad">
@@ -249,20 +213,25 @@ function scrollToWeek(id: number) {
               <h3>第 {{ week.id }} 周 · {{ week.title }}</h3>
               <p>{{ week.tag }} · {{ week.objective }}</p>
             </div>
-            <div class="week-score">
-              <div
-                class="mini-ring"
-                :style="{ '--p': weekDone(week).percent }"
-                :data-p="`${weekDone(week).percent}%`"
-              ></div>
-              <ChevronDown
-                :size="19"
-                :style="{ transform: openWeekId === week.id ? 'rotate(180deg)' : 'none' }"
-              />
+            <div class="week-side">
+              <div class="week-goal">
+                <b>本周目标</b>
+                <span>{{ week.objective }}</span>
+              </div>
+              <div class="week-score">
+                <div
+                  class="mini-ring"
+                  :style="{ '--p': weekDone(week).percent }"
+                  :data-p="`${weekDone(week).percent}%`"
+                ></div>
+                <ChevronDown
+                  :size="19"
+                  :style="{ transform: openWeekId === week.id ? 'rotate(180deg)' : 'none' }"
+                />
+              </div>
             </div>
           </div>
           <div v-show="openWeekId === week.id" class="week-body">
-            <div class="objective"><strong>本周目标：</strong>{{ week.objective }}</div>
             <div class="knowledge-block">
               <b>核心知识点</b>
               <ul>
@@ -550,6 +519,37 @@ function scrollToWeek(id: number) {
   background: rgba(110, 231, 255, 0.09);
 }
 
+.week-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  min-width: 0;
+}
+
+.week-goal {
+  max-width: 300px;
+  text-align: right;
+}
+
+.week-goal b {
+  display: block;
+  color: var(--yellow);
+  font-size: 0.72rem;
+  margin-bottom: 3px;
+}
+
+.week-goal span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.week-score {
+  justify-content: flex-end;
+}
+
 .compliance-quick-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -805,6 +805,21 @@ function scrollToWeek(id: number) {
 @media (max-width: 860px) {
   .tab-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .week-header {
+    grid-template-columns: auto 1fr;
+  }
+
+  .week-side {
+    grid-column: 1 / -1;
+    align-items: flex-start;
+    margin-top: 4px;
+  }
+
+  .week-goal {
+    max-width: none;
+    text-align: left;
   }
 }
 

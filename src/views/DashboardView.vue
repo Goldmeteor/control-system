@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { RouterLink } from 'vue-router'
 import ModuleHeader from '../components/ModuleHeader.vue'
 import ProgressRing from '../components/ProgressRing.vue'
-import { weekPhases, weeks } from '../data/weeks'
+import { weeks } from '../data/weeks'
 import {
   doneCount,
   legalDoneCount,
@@ -15,12 +14,6 @@ import {
   weekDoneCount,
   weekTaskIds,
 } from '../store'
-
-const start = new Date('2026-08-10T00:00:00+08:00')
-const currentWeek = computed(() => {
-  const diff = Math.floor((Date.now() - start.getTime()) / 604800000) + 1
-  return diff < 1 ? 1 : diff > 12 ? 12 : diff
-})
 
 const weekTotalCount = weekTaskIds.length
 const softwareTotalCount = softwareTaskIds.length
@@ -40,6 +33,37 @@ const spot = {
   light: '../assets/dashboard-spot-light.webp',
 }
 
+const stats = computed(() => [
+  {
+    label: '总任务',
+    value: doneCount.value,
+    total: totalCount.value,
+    percent: percent.value,
+    hint: '三条学习线合计',
+  },
+  {
+    label: '科研任务',
+    value: weekDoneCount.value,
+    total: weekTotalCount,
+    percent: researchPercent,
+    hint: '12 周路径规划',
+  },
+  {
+    label: '工程任务',
+    value: softwareDoneCount.value,
+    total: softwareTotalCount,
+    percent: engineeringPercent,
+    hint: '软件工程清单',
+  },
+  {
+    label: '法律任务',
+    value: legalDoneCount.value,
+    total: legalTotalCount,
+    percent: lawPercent,
+    hint: '法律学习与备案合规',
+  },
+])
+
 const progressLines = [
   { label: '路径规划', done: weekDoneCount.value, total: weekTotalCount, percent: researchPercent },
   { label: '软件工程', done: softwareDoneCount.value, total: softwareTotalCount, percent: engineeringPercent },
@@ -55,32 +79,17 @@ const progressLines = [
       :banner="banner"
       :spot="spot"
       compact
-    >
-      <template #actions>
-        <span class="tiny">当前科研周：Week {{ currentWeek }}</span>
-      </template>
-    </ModuleHeader>
+    />
 
     <div class="stat-grid">
-      <div class="stat-card">
-        <strong>{{ totalCount }}</strong>
-        <span>总任务</span>
-        <small>三条学习线合计</small>
-      </div>
-      <div class="stat-card">
-        <strong>{{ doneCount }}</strong>
-        <span>已完成</span>
-        <small>整体完成度 {{ percent }}%</small>
-      </div>
-      <div class="stat-card">
-        <strong>{{ weekDoneCount }}</strong>
-        <span>科研任务</span>
-        <small>12 周路径规划</small>
-      </div>
-      <div class="stat-card">
-        <strong>{{ softwareDoneCount }}</strong>
-        <span>工程任务</span>
-        <small>软件工程清单</small>
+      <div v-for="stat in stats" :key="stat.label" class="stat-card">
+        <strong>{{ stat.value }}</strong>
+        <span>{{ stat.label }}</span>
+        <small>{{ stat.hint }}</small>
+        <div class="card-progress">
+          <div class="bar"><i :style="{ width: `${stat.percent}%` }"></i></div>
+          <b>{{ stat.value }} / {{ stat.total }} · {{ stat.percent }}%</b>
+        </div>
       </div>
     </div>
 
@@ -104,53 +113,13 @@ const progressLines = [
     <div class="page-section">
       <div class="section-head">
         <div>
-          <h2>模块分布</h2>
-          <p>点击卡片进入对应学习模块</p>
-        </div>
-      </div>
-      <div class="stat-grid">
-        <RouterLink to="/roadmap" class="stat-card module-card">
-          <strong>12 周</strong>
-          <span>路径规划</span>
-          <small>算法基石、系统闭环、复现改进、研究收敛</small>
-          <div class="chip-row">
-            <span v-for="phase in weekPhases" :key="phase.id" class="chip">{{ phase.label }}</span>
-          </div>
-        </RouterLink>
-        <RouterLink to="/software" class="stat-card module-card">
-          <strong>5 类</strong>
-          <span>软件工程</span>
-          <small>地基、全栈、安全、素养与每周工程副线</small>
-        </RouterLink>
-        <RouterLink to="/legal" class="stat-card module-card">
-          <strong>16 周</strong>
-          <span>法律学习</span>
-          <small>互联网合规、备案资质与日常生活防坑</small>
-        </RouterLink>
-        <RouterLink to="/settings" class="stat-card module-card">
-          <strong>1 份</strong>
-          <span>设置</span>
-          <small>主题切换与进度数据管理</small>
-        </RouterLink>
-      </div>
-    </div>
-
-    <div class="page-section">
-      <div class="section-head">
-        <div>
           <h2>12 周科研时间线</h2>
-          <p>点击节点进入路径规划逐周任务</p>
+          <p>路径规划科研主线当前进度</p>
         </div>
       </div>
       <div class="panel panel-pad">
-        <div class="timeline">
-          <div
-            v-for="week in weeks"
-            :key="week.id"
-            class="tl"
-            :class="{ active: currentWeek === week.id }"
-            @click="$router.push('/roadmap')"
-          >
+        <div class="timeline dashboard-timeline">
+          <div v-for="week in weeks" :key="week.id" class="tl">
             <div class="tl-dot" :style="{ borderColor: week.color }">{{ week.id }}</div>
             <b>Week {{ week.id }}</b>
             <small>{{ week.date }}</small>
@@ -162,6 +131,20 @@ const progressLines = [
 </template>
 
 <style scoped>
+.card-progress {
+  margin-top: 10px;
+}
+
+.card-progress .bar {
+  margin: 0 0 5px;
+}
+
+.card-progress b {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .line-progress {
   display: grid;
   gap: 10px;
@@ -181,24 +164,13 @@ const progressLines = [
   margin: 0;
 }
 
-.module-card {
-  display: block;
+.dashboard-timeline .tl {
+  cursor: default;
 }
 
-.chip-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 10px;
-}
-
-.chip {
-  color: var(--accent);
-  border: 1px solid rgba(110, 231, 255, 0.25);
-  border-radius: 99px;
-  background: rgba(110, 231, 255, 0.06);
-  padding: 4px 8px;
-  font-size: 0.7rem;
+.dashboard-timeline .tl:hover .tl-dot {
+  border-color: var(--line);
+  box-shadow: none;
 }
 
 @media (max-width: 720px) {

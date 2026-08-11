@@ -827,9 +827,9 @@ export const legalResources: LegalResource[] = [
   {
     id: 'mooc-civil',
     category: '课程',
-    title: '《民法与生活》中国大学MOOC',
-    link: 'https://www.icourse163.org/course/detail.htm?cid=1002146003',
-    note: '案例型入门，覆盖民法典主要板块，第1-4周主线课程。',
+    title: '《民法与生活》暨南大学 · 学堂在线',
+    link: 'https://www.xuetangx.com/course/JNU03011000653/31376139',
+    note: '案例型入门课程，覆盖民法典主要板块，第1-4周主线课程。',
   },
   {
     id: 'mooc-network',

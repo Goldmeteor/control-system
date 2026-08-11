@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { Download, Moon, Sun, Upload } from '@lucide/vue'
 import ModuleHeader from '../components/ModuleHeader.vue'
 import {
@@ -20,20 +20,11 @@ import {
 
 const fileInput = ref<HTMLInputElement>()
 const message = ref('')
+const showClearConfirm = ref(false)
 
 const weekTotal = weekTaskIds.length
 const softwareTotal = softwareTaskIds.length
 const legalTotal = legalTaskIds.length
-
-const weekPercent = weekTotal ? Math.round((weekDoneCount.value / weekTotal) * 100) : 0
-const softwarePercent = softwareTotal ? Math.round((softwareDoneCount.value / softwareTotal) * 100) : 0
-const legalPercent = legalTotal ? Math.round((legalDoneCount.value / legalTotal) * 100) : 0
-
-const progressLines = computed(() => [
-  { label: '路径规划', done: weekDoneCount.value, total: weekTotal, percent: weekPercent },
-  { label: '软件工程', done: softwareDoneCount.value, total: softwareTotal, percent: softwarePercent },
-  { label: '法律学习', done: legalDoneCount.value, total: legalTotal, percent: legalPercent },
-])
 
 function onFileChange(event: Event) {
   const input = event.target as HTMLInputElement
@@ -47,11 +38,18 @@ function onFileChange(event: Event) {
   reader.readAsText(file)
 }
 
-function clearProgress() {
-  if (window.confirm('确认清空全部学习进度？')) {
-    resetProgress()
-    message.value = '已清空'
-  }
+function askClear() {
+  showClearConfirm.value = true
+}
+
+function cancelClear() {
+  showClearConfirm.value = false
+}
+
+function confirmClear() {
+  resetProgress()
+  message.value = '已清空'
+  showClearConfirm.value = false
 }
 </script>
 
@@ -75,12 +73,12 @@ function clearProgress() {
       <div class="stat-card">
         <strong>{{ weekDoneCount }}</strong>
         <span>科研任务</span>
-        <small>12 周路径规划</small>
+        <small>已勾选 {{ weekDoneCount }} / {{ weekTotal }}</small>
       </div>
       <div class="stat-card">
         <strong>{{ softwareDoneCount }}</strong>
         <span>工程任务</span>
-        <small>软件工程清单</small>
+        <small>已勾选 {{ softwareDoneCount }} / {{ softwareTotal }}</small>
       </div>
       <div class="stat-card">
         <strong>{{ legalDoneCount }}</strong>
@@ -89,35 +87,12 @@ function clearProgress() {
       </div>
     </div>
 
-    <div class="page-section settings-overview">
-      <section class="panel panel-pad">
-        <h2>学习线进度</h2>
-        <div class="settings-progress-list">
-          <div v-for="line in progressLines" :key="line.label" class="settings-progress-row">
-            <span>{{ line.label }}</span>
-            <div class="bar"><i :style="{ width: `${line.percent}%` }"></i></div>
-            <small>{{ line.done }} / {{ line.total }}</small>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel panel-pad">
+    <div class="page-section">
+      <section class="panel panel-pad theme-panel">
         <h2>主题</h2>
         <p class="tiny">深色适合夜间阅读，浅色适合日间阅读。</p>
         <div class="theme-switch" :class="state.theme">
           <span class="theme-thumb" aria-hidden="true"></span>
-          <button
-            type="button"
-            class="theme-option"
-            :class="{ active: state.theme === 'dark' }"
-            :aria-pressed="state.theme === 'dark'"
-            title="深色模式：适合夜间阅读"
-            @click="setTheme('dark')"
-          >
-            <Moon :size="18" />
-            <span>深色</span>
-            <small>夜间</small>
-          </button>
           <button
             type="button"
             class="theme-option"
@@ -130,19 +105,18 @@ function clearProgress() {
             <span>浅色</span>
             <small>日间</small>
           </button>
-        </div>
-        <div class="theme-preview" :class="state.theme">
-          <div class="preview-bar"></div>
-          <div class="preview-body">
-            <div class="preview-side"></div>
-            <div class="preview-main">
-              <div class="preview-card preview-card-wide"></div>
-              <div class="preview-card-row">
-                <div class="preview-card"></div>
-                <div class="preview-card"></div>
-              </div>
-            </div>
-          </div>
+          <button
+            type="button"
+            class="theme-option"
+            :class="{ active: state.theme === 'dark' }"
+            :aria-pressed="state.theme === 'dark'"
+            title="深色模式：适合夜间阅读"
+            @click="setTheme('dark')"
+          >
+            <Moon :size="18" />
+            <span>深色</span>
+            <small>夜间</small>
+          </button>
         </div>
       </section>
     </div>
@@ -183,9 +157,20 @@ function clearProgress() {
         <h2>清空</h2>
         <p class="tiny">移除全部勾选状态与折叠设置。</p>
         <div class="action-row">
-          <button class="danger-button" type="button" @click="clearProgress">清空进度</button>
+          <button class="danger-button" type="button" @click="askClear">清空进度</button>
         </div>
       </section>
+    </div>
+
+    <div v-if="showClearConfirm" class="clear-overlay" role="dialog" aria-modal="true">
+      <div class="clear-dialog">
+        <h2>确认清空进度？</h2>
+        <p class="clear-warning">删除后无法恢复，所有勾选状态和折叠设置都会被移除。</p>
+        <div class="action-row">
+          <button class="ghost-button" type="button" @click="cancelClear">取消</button>
+          <button class="danger-button" type="button" @click="confirmClear">确认清空</button>
+        </div>
+      </div>
     </div>
 
     <div v-if="message" class="page-section">
@@ -199,30 +184,8 @@ function clearProgress() {
   display: none;
 }
 
-.settings-overview {
-  display: grid;
-  grid-template-columns: 1fr 1.25fr;
-  gap: 15px;
-  margin-top: 26px;
-}
-
-.settings-progress-list {
-  display: grid;
-  gap: 14px;
-  margin-top: 14px;
-}
-
-.settings-progress-row {
-  display: grid;
-  grid-template-columns: 82px 1fr 70px;
-  gap: 10px;
-  align-items: center;
-  color: var(--muted);
-  font-size: 0.82rem;
-}
-
-.settings-progress-row .bar {
-  margin: 0;
+.theme-panel {
+  max-width: 680px;
 }
 
 .theme-switch {
@@ -249,7 +212,7 @@ function clearProgress() {
   transition: transform 0.22s ease;
 }
 
-.theme-switch.light .theme-thumb {
+.theme-switch.dark .theme-thumb {
   transform: translateX(100%);
 }
 
@@ -280,55 +243,6 @@ function clearProgress() {
   color: #06111f;
 }
 
-.theme-preview {
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  overflow: hidden;
-  background: var(--bg2);
-}
-
-.preview-bar {
-  height: 18px;
-  border-bottom: 1px solid var(--line);
-  background: var(--panel);
-}
-
-.preview-body {
-  display: grid;
-  grid-template-columns: 64px 1fr;
-  min-height: 120px;
-}
-
-.preview-side {
-  border-right: 1px solid var(--line);
-  background: var(--panel);
-}
-
-.preview-main {
-  display: grid;
-  gap: 10px;
-  padding: 14px;
-}
-
-.preview-card {
-  height: 30px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--panel);
-}
-
-.preview-card-wide {
-  height: 42px;
-  border-color: rgba(110, 231, 255, 0.35);
-  background: linear-gradient(90deg, rgba(110, 231, 255, 0.12), rgba(139, 124, 255, 0.08));
-}
-
-.preview-card-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
 .primary-button,
 .ghost-button {
   display: inline-flex;
@@ -336,16 +250,49 @@ function clearProgress() {
   gap: 7px;
 }
 
-@media (max-width: 1120px) {
-  .settings-overview {
-    grid-template-columns: 1fr;
-  }
+.clear-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(4, 10, 20, 0.68);
+  backdrop-filter: blur(6px);
+}
+
+.clear-dialog {
+  width: min(440px, 100%);
+  border: 1px solid rgba(255, 123, 139, 0.45);
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+  padding: 22px;
+}
+
+.clear-dialog h2 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+.clear-warning {
+  color: var(--red);
+  font-weight: 700;
+  line-height: 1.6;
+  margin: 0 0 16px;
+}
+
+.clear-dialog .action-row {
+  justify-content: flex-end;
 }
 
 @media (max-width: 720px) {
-  .settings-progress-row {
-    grid-template-columns: 1fr;
-    gap: 4px;
+  .clear-dialog .action-row {
+    justify-content: stretch;
+  }
+
+  .clear-dialog .action-row button {
+    flex: 1;
   }
 }
 </style>
