@@ -1145,8 +1145,5 @@ export function allLegalTaskIds(): string[] {
         group.tasks.map((_, taskIndex) => `l${week.id}-g${groupIndex}-t${taskIndex}`),
       ),
     ),
-    ...legalChecklists.flatMap((checklist, checklistIndex) =>
-      checklist.items.map((_, itemIndex) => `lc${checklistIndex}-i${itemIndex}`),
-    ),
   ]
 }

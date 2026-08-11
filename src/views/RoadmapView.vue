@@ -18,13 +18,25 @@ type TabId = 'weeks' | 'resources' | 'checklists' | 'templates'
 const start = new Date('2026-08-10T00:00:00+08:00')
 const currentWeek = computed(() => {
   const diff = Math.floor((Date.now() - start.getTime()) / 604800000) + 1
-  return diff < 1 ? 1 : diff > 12 ? 12 : diff
+  return diff < 1 ? 1 : diff > 8 ? 8 : diff
 })
+
+const pathWeeks = weeks.filter((week) => week.id <= 8)
+
+function pathPhaseForWeek(week: number) {
+  if (week <= 3) return '算法基石阶段'
+  if (week === 4) return '系统闭环阶段'
+  if (week <= 6) return '复现改进阶段'
+  if (week <= 8) return '研究收敛阶段'
+  if (week <= 10) return '全栈开发阶段'
+  if (week === 11) return '部署上线阶段'
+  return '安全合规阶段'
+}
 
 const activeTab = ref<TabId>('weeks')
 const query = ref('')
 const phaseFilter = ref('all')
-const openWeekId = ref<number | null>(currentWeek.value)
+const openWeekId = ref<number | null>(null)
 const openAll = ref(false)
 
 const banner = {
@@ -38,7 +50,7 @@ const spot = {
 }
 
 const tabs = [
-  { id: 'weeks', label: '12周任务', icon: BookOpenCheck },
+  { id: 'weeks', label: '任务清单', icon: BookOpenCheck },
   { id: 'resources', label: '教程与教材', icon: ExternalLink },
   { id: 'checklists', label: '自查清单', icon: ListChecks },
   { id: 'templates', label: '模板', icon: FileText },
@@ -46,7 +58,7 @@ const tabs = [
 
 const filteredWeeks = computed(() => {
   const q = query.value.trim().toLowerCase()
-  return weeks.filter((week) => {
+  return pathWeeks.filter((week) => {
     const matchPhase = phaseFilter.value === 'all' || week.phase === phaseFilter.value
     if (!matchPhase) return false
     if (!q) return true
@@ -91,16 +103,42 @@ function scrollToWeek(id: number) {
 <template>
   <div class="page-section">
     <ModuleHeader
-      title="路径规划 · 12周科研路线"
+      title="路径规划"
       subtitle="移动机器人路径规划研究主线，从算法实现到研究提案的完整推进路线"
       :banner="banner"
       :spot="spot"
       compact
     >
       <template #actions>
-        <span class="tiny">当前：第 {{ currentWeek }} 周</span>
+        <span class="tiny">当前：{{ pathPhaseForWeek(currentWeek) }} · 第{{ currentWeek }}周</span>
       </template>
     </ModuleHeader>
+
+    <div class="page-section">
+      <div class="panel panel-pad">
+        <div class="timeline path-timeline">
+          <div
+            v-for="week in pathWeeks"
+            :key="week.id"
+            class="tl"
+            :class="{ done: weekDone(week).done === weekDone(week).total, active: openAll || openWeekId === week.id }"
+            @click="scrollToWeek(week.id)"
+          >
+            <div class="tl-dot" :style="{ borderColor: week.color }">
+              {{ weekDone(week).percent === 100 ? '✓' : week.id }}
+            </div>
+            <b>第 {{ week.id }} 周</b>
+            <small>{{ week.tag }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-section">
+      <div class="search-row">
+        <input v-model="query" class="control" type="search" placeholder="搜索周次、算法、任务…" />
+      </div>
+    </div>
 
     <div class="page-section">
       <div class="tab-row">
@@ -119,28 +157,6 @@ function scrollToWeek(id: number) {
     </div>
 
     <div v-if="activeTab === 'weeks'" class="page-section">
-      <div class="search-row">
-        <input v-model="query" class="control" type="search" placeholder="搜索周次、算法、任务…" />
-      </div>
-
-      <div class="panel panel-pad">
-        <div class="timeline">
-          <div
-            v-for="week in weeks"
-            :key="week.id"
-            class="tl"
-            :class="{ done: weekDone(week).done === weekDone(week).total, active: openAll || openWeekId === week.id }"
-            @click="scrollToWeek(week.id)"
-          >
-            <div class="tl-dot" :style="{ borderColor: week.color }">
-              {{ weekDone(week).percent === 100 ? '✓' : week.id }}
-            </div>
-            <b>Week {{ week.id }}</b>
-            <small>{{ week.date }}</small>
-          </div>
-        </div>
-      </div>
-
       <div class="page-section week-list">
         <article
           v-for="week in filteredWeeks"
@@ -152,8 +168,8 @@ function scrollToWeek(id: number) {
           <div class="week-header" @click="toggleWeek(week.id)">
             <div class="week-num">{{ week.icon }}</div>
             <div class="week-title">
-              <h3>Week {{ week.id }} · {{ week.title }}</h3>
-              <p>{{ week.date }}　{{ week.tag }}</p>
+              <h3>第 {{ week.id }} 周 · {{ week.title }}</h3>
+              <p>{{ week.tag }}</p>
             </div>
             <div class="week-side">
               <div class="week-goal">
@@ -293,6 +309,10 @@ function scrollToWeek(id: number) {
 </template>
 
 <style scoped>
+.path-timeline {
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+
 .tab-row {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -326,8 +346,10 @@ function scrollToWeek(id: number) {
 }
 
 .week-goal {
-  max-width: 300px;
+  width: max-content;
+  max-width: 560px;
   text-align: right;
+  min-width: 0;
 }
 
 .week-goal b {
@@ -342,6 +364,9 @@ function scrollToWeek(id: number) {
   color: var(--muted);
   font-size: 0.78rem;
   line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
 }
 
 .week-score {
@@ -446,6 +471,7 @@ function scrollToWeek(id: number) {
   .week-goal {
     max-width: none;
     text-align: left;
+    width: 100%;
   }
 
   .resource-grid {

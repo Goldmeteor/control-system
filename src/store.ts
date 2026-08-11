@@ -1,7 +1,7 @@
 import { computed, reactive, watch } from 'vue'
 import type { PersistedState } from './types'
 import { allLegalTaskIds } from './data/legal'
-import { allSoftwareTaskIds } from './data/software'
+import { allSoftwarePlanTaskIds } from './data/softwarePlan'
 import { allWeekTaskIds } from './data/weeks'
 
 const STORAGE_KEY = 'learning-hub-v1'
@@ -49,7 +49,7 @@ watch(
 )
 
 const weekTaskIds = allWeekTaskIds()
-const softwareTaskIds = allSoftwareTaskIds()
+const softwareTaskIds = allSoftwarePlanTaskIds()
 const legalTaskIds = allLegalTaskIds()
 const allTaskIds = [...weekTaskIds, ...softwareTaskIds, ...legalTaskIds]
 

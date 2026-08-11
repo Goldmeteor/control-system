@@ -28,7 +28,7 @@ function resolveAsset(path?: string) {
 const heroStyle = computed(() =>
   props.banner
     ? {
-        '--banner-image': `url(${resolveAsset(props.banner.dark)})`,
+        '--banner-image-dark': `url(${resolveAsset(props.banner.dark)})`,
         '--banner-image-light': `url(${resolveAsset(props.banner.light)})`,
       }
     : undefined,
@@ -37,7 +37,7 @@ const heroStyle = computed(() =>
 const spotStyle = computed(() =>
   props.spot
     ? {
-        '--spot-image': `url(${resolveAsset(props.spot.dark)})`,
+        '--spot-image-dark': `url(${resolveAsset(props.spot.dark)})`,
         '--spot-image-light': `url(${resolveAsset(props.spot.light)})`,
       }
     : undefined,
@@ -85,9 +85,25 @@ const spotStyle = computed(() =>
   height: 96px;
 }
 
+.visual-banner {
+  --banner-image: var(--banner-image-dark);
+}
+
 .spot-tile.compact-spot {
   flex: 0 0 96px;
   height: 96px;
+}
+
+.spot-tile {
+  --spot-image: var(--spot-image-dark);
+}
+
+:root[data-theme='light'] .visual-banner {
+  --banner-image: var(--banner-image-light);
+}
+
+:root[data-theme='light'] .spot-tile {
+  --spot-image: var(--spot-image-light);
 }
 
 @media (max-width: 860px) {

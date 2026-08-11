@@ -2,29 +2,11 @@
 import { ref } from 'vue'
 import { Download, Moon, Sun, Upload } from '@lucide/vue'
 import ModuleHeader from '../components/ModuleHeader.vue'
-import {
-  doneCount,
-  exportJson,
-  importJson,
-  legalDoneCount,
-  legalTaskIds,
-  resetProgress,
-  setTheme,
-  softwareDoneCount,
-  softwareTaskIds,
-  state,
-  totalCount,
-  weekDoneCount,
-  weekTaskIds,
-} from '../store'
+import { exportJson, importJson, resetProgress, setTheme, state } from '../store'
 
 const fileInput = ref<HTMLInputElement>()
 const message = ref('')
 const showClearConfirm = ref(false)
-
-const weekTotal = weekTaskIds.length
-const softwareTotal = softwareTaskIds.length
-const legalTotal = legalTaskIds.length
 
 function onFileChange(event: Event) {
   const input = event.target as HTMLInputElement
@@ -57,42 +39,14 @@ function confirmClear() {
   <div class="page-section">
     <ModuleHeader
       title="设置"
-      subtitle="主题、进度数据与本地存储管理"
-    >
-      <template #actions>
-        <span class="tiny">当前：{{ state.theme === 'dark' ? '深色模式' : '浅色模式' }}</span>
-      </template>
-    </ModuleHeader>
+      subtitle="进度数据与本地存储管理"
+    />
 
-    <div class="stat-grid">
-      <div class="stat-card">
-        <strong>{{ doneCount }}</strong>
-        <span>已完成</span>
-        <small>{{ totalCount }} 项总任务</small>
-      </div>
-      <div class="stat-card">
-        <strong>{{ weekDoneCount }}</strong>
-        <span>科研任务</span>
-        <small>已勾选 {{ weekDoneCount }} / {{ weekTotal }}</small>
-      </div>
-      <div class="stat-card">
-        <strong>{{ softwareDoneCount }}</strong>
-        <span>工程任务</span>
-        <small>已勾选 {{ softwareDoneCount }} / {{ softwareTotal }}</small>
-      </div>
-      <div class="stat-card">
-        <strong>{{ legalDoneCount }}</strong>
-        <span>法律任务</span>
-        <small>{{ legalTotal }} 项总任务</small>
-      </div>
-    </div>
-
-    <div class="page-section">
-      <section class="panel panel-pad theme-panel">
+    <div class="page-section settings-grid">
+      <section class="panel panel-pad settings-cell">
         <h2>主题</h2>
         <p class="tiny">深色适合夜间阅读，浅色适合日间阅读。</p>
         <div class="theme-switch" :class="state.theme">
-          <span class="theme-thumb" aria-hidden="true"></span>
           <button
             type="button"
             class="theme-option"
@@ -103,7 +57,6 @@ function confirmClear() {
           >
             <Sun :size="18" />
             <span>浅色</span>
-            <small>日间</small>
           </button>
           <button
             type="button"
@@ -115,14 +68,11 @@ function confirmClear() {
           >
             <Moon :size="18" />
             <span>深色</span>
-            <small>夜间</small>
           </button>
         </div>
       </section>
-    </div>
 
-    <div class="page-section settings-grid">
-      <section class="panel panel-pad">
+      <section class="panel panel-pad settings-cell">
         <h2>进度数据</h2>
         <p class="tiny">导出完整进度文件，或导入先前备份。</p>
         <div class="action-row">
@@ -144,7 +94,7 @@ function confirmClear() {
         </div>
       </section>
 
-      <section class="panel panel-pad">
+      <section class="panel panel-pad settings-cell">
         <h2>数据说明</h2>
         <ul class="muted-list">
           <li>存储键：learning-hub-v1</li>
@@ -153,7 +103,7 @@ function confirmClear() {
         </ul>
       </section>
 
-      <section class="panel panel-pad">
+      <section class="panel panel-pad settings-cell">
         <h2>清空</h2>
         <p class="tiny">移除全部勾选状态与折叠设置。</p>
         <div class="action-row">
@@ -184,70 +134,76 @@ function confirmClear() {
   display: none;
 }
 
-.theme-panel {
-  max-width: 680px;
-}
-
-.theme-switch {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--panel2);
-  padding: 5px;
-  margin: 14px 0 16px;
-  overflow: hidden;
-}
-
-.theme-thumb {
-  position: absolute;
-  top: 5px;
-  bottom: 5px;
-  left: 5px;
-  width: calc(50% - 5px);
-  border-radius: 9px;
-  background: linear-gradient(135deg, var(--accent2), var(--accent));
-  box-shadow: 0 6px 18px rgba(110, 231, 255, 0.18);
-  transition: transform 0.22s ease;
-}
-
-.theme-switch.dark .theme-thumb {
-  transform: translateX(100%);
-}
-
-.theme-option {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  min-height: 58px;
-  color: var(--muted);
-  border: 0;
-  border-radius: 9px;
-  background: transparent;
-}
-
-.theme-option span {
-  font-weight: 800;
-  font-size: 0.9rem;
-}
-
-.theme-option small {
-  font-size: 0.7rem;
-}
-
-.theme-option.active {
-  color: #06111f;
-}
-
 .primary-button,
 .ghost-button {
   display: inline-flex;
   align-items: center;
   gap: 7px;
+}
+
+.settings-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.settings-cell {
+  min-height: 230px;
+  display: flex;
+  flex-direction: column;
+}
+
+.theme-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel2);
+  padding: 4px;
+  margin: 14px 0 0;
+}
+
+.theme-option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  min-height: 0;
+  padding: 10px 14px;
+  color: var(--muted);
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font-weight: 700;
+}
+
+.theme-option span {
+  font-size: 0.88rem;
+}
+
+.theme-option.active {
+  color: #06111f;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  box-shadow: 0 5px 16px rgba(110, 231, 255, 0.16);
+}
+
+.settings-cell .action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.settings-cell .action-row button {
+  width: 100%;
+  justify-content: center;
+}
+
+@media (max-width: 860px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .clear-overlay {
