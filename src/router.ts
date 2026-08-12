@@ -7,6 +7,7 @@ import ProgrammingView from './views/ProgrammingView.vue'
 import CybersecurityView from './views/CybersecurityView.vue'
 import AiTechView from './views/AiTechView.vue'
 import KnowledgeBaseView from './views/KnowledgeBaseView.vue'
+import KnowledgeDetailView from './views/KnowledgeDetailView.vue'
 import SettingsView from './views/SettingsView.vue'
 
 const router = createRouter({
@@ -22,6 +23,7 @@ const router = createRouter({
     { path: '/cybersecurity', name: 'cybersecurity', component: CybersecurityView },
     { path: '/ai-tech', name: 'ai-tech', component: AiTechView },
     { path: '/knowledge-base', name: 'knowledge-base', component: KnowledgeBaseView },
+    { path: '/knowledge-base/:id', name: 'knowledge-detail', component: KnowledgeDetailView },
     { path: '/settings', name: 'settings', component: SettingsView },
   ],
 })

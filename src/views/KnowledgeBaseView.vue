@@ -1,11 +1,29 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 import { Search } from '@lucide/vue'
 import ModuleHeader from '../components/ModuleHeader.vue'
-import { knowledgeItems, knowledgeTabs } from '../data/knowledgeBase'
+import {
+  knowledgeGroupMap,
+  knowledgeGroupOrder,
+  knowledgeItems,
+  knowledgeTabs,
+} from '../data/knowledgeBase'
+import type { KnowledgeItem } from '../data/knowledgeBase'
 
-const activeTab = ref('terms')
-const query = ref('')
+const route = useRoute()
+const activeTab = ref(route.query.tab ? String(route.query.tab) : 'terms')
+const query = ref(route.query.q ? String(route.query.q) : '')
+
+watch(
+  () => route.query,
+  (next) => {
+    if (next.tab && knowledgeTabs.some((tab) => tab.id === next.tab)) {
+      activeTab.value = String(next.tab)
+    }
+    if (next.q !== undefined) query.value = String(next.q)
+  },
+)
 
 const filteredItems = computed(() => {
   const q = query.value.trim().toLowerCase()
@@ -14,6 +32,22 @@ const filteredItems = computed(() => {
   return items.filter((item) =>
     [item.title, item.text, item.ref ?? ''].join(' ').toLowerCase().includes(q),
   )
+})
+
+const groupedItems = computed(() => {
+  const map = new Map<string, KnowledgeItem[]>()
+  for (const item of filteredItems.value) {
+    const group = knowledgeGroupMap[item.id] ?? '其他'
+    if (!map.has(group)) map.set(group, [])
+    map.get(group)?.push(item)
+  }
+  return [...map.entries()]
+    .map(([name, items]) => ({ name, items }))
+    .sort((a, b) => {
+      const ai = knowledgeGroupOrder.indexOf(a.name)
+      const bi = knowledgeGroupOrder.indexOf(b.name)
+      return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi)
+    })
 })
 </script>
 
@@ -47,15 +81,30 @@ const filteredItems = computed(() => {
       <p class="tiny tab-note">{{ knowledgeTabs.find((tab) => tab.id === activeTab)?.description }}</p>
     </div>
 
-    <div class="page-section knowledge-grid">
-      <article v-for="item in filteredItems" :key="item.title" class="knowledge-card">
-        <h3>{{ item.title }}</h3>
-        <p>{{ item.text }}</p>
-        <small v-if="item.ref">{{ item.ref }}</small>
-      </article>
+    <div class="page-section">
+      <section v-for="group in groupedItems" :key="group.name" class="knowledge-group">
+        <div class="section-head">
+          <div>
+            <h2>{{ group.name }}</h2>
+          </div>
+        </div>
+        <div class="knowledge-grid">
+          <RouterLink
+            v-for="item in group.items"
+            :key="item.id"
+            :to="{ name: 'knowledge-detail', params: { id: item.id }, query: { tab: activeTab, q: query } }"
+            class="knowledge-card knowledge-link"
+          >
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.text }}</p>
+            <small v-if="item.ref">{{ item.ref }}</small>
+            <span class="card-hint">点击卡片查看详情</span>
+          </RouterLink>
+        </div>
+      </section>
     </div>
 
-    <div v-if="filteredItems.length === 0" class="empty-state">没有匹配内容</div>
+    <div v-if="groupedItems.length === 0" class="empty-state">没有匹配内容</div>
   </div>
 </template>
 
@@ -94,6 +143,14 @@ const filteredItems = computed(() => {
   margin-top: 10px;
 }
 
+.knowledge-group {
+  margin-bottom: 24px;
+}
+
+.knowledge-group .section-head {
+  margin-bottom: 10px;
+}
+
 .knowledge-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -101,12 +158,24 @@ const filteredItems = computed(() => {
 }
 
 .knowledge-card {
+  display: block;
   min-width: 0;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--panel);
   box-shadow: var(--shadow);
   padding: 15px;
+}
+
+.knowledge-link {
+  text-decoration: none;
+  transition: 0.18s;
+}
+
+.knowledge-link:hover {
+  border-color: rgba(110, 231, 255, 0.45);
+  background: rgba(110, 231, 255, 0.07);
+  transform: translateY(-2px);
 }
 
 .knowledge-card h3 {
@@ -126,6 +195,14 @@ const filteredItems = computed(() => {
   margin-top: 8px;
   color: var(--accent);
   font-size: 0.74rem;
+}
+
+.card-hint {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--yellow);
+  font-size: 0.74rem;
+  font-weight: 700;
 }
 
 @media (max-width: 1120px) {
