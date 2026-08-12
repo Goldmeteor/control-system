@@ -7,41 +7,40 @@ import {
   FileText,
   ListChecks,
 } from '@lucide/vue'
-import ModuleHeader from '../components/ModuleHeader.vue'
-import { softwareChecklists, softwareResources, softwareTemplates } from '../data/softwareResources'
-import { softwarePlanWeeks } from '../data/softwarePlan'
+import ModuleHeader from './ModuleHeader.vue'
 import { state, toggleTask } from '../store'
+import type {
+  StudyChecklist,
+  StudyResource,
+  StudyTemplate,
+  StudyWeek,
+} from '../types'
+
+const props = defineProps<{
+  title: string
+  subtitle: string
+  banner: { dark: string; light: string }
+  spot: { dark: string; light: string }
+  weeks: StudyWeek[]
+  resources: StudyResource[]
+  checklists: StudyChecklist[]
+  templates: StudyTemplate[]
+  taskPrefix: string
+  phaseLabel?: (week: number) => string
+}>()
 
 type TabId = 'weeks' | 'resources' | 'checklists' | 'templates'
 
 const start = new Date('2026-08-10T00:00:00+08:00')
 const currentWeek = computed(() => {
   const diff = Math.floor((Date.now() - start.getTime()) / 604800000) + 1
-  return diff < 1 ? 1 : diff > 12 ? 12 : diff
-})
-
-const currentPhase = computed(() => {
-  if (currentWeek.value <= 4) return '算法与实验阶段'
-  if (currentWeek.value <= 8) return '复现与研究阶段'
-  if (currentWeek.value <= 10) return '全栈开发阶段'
-  return '部署与合规阶段'
+  return diff < 1 ? 1 : diff > props.weeks.length ? props.weeks.length : diff
 })
 
 const activeTab = ref<TabId>('weeks')
 const query = ref('')
 const openWeekId = ref<number | null>(null)
 const openAll = ref(false)
-const softwareWeeks = softwarePlanWeeks
-
-const banner = {
-  dark: '../assets/software-hero-dark.webp',
-  light: '../assets/software-hero-light.webp',
-}
-
-const spot = {
-  dark: '../assets/software-spot-dark.webp',
-  light: '../assets/software-spot-light.webp',
-}
 
 const tabs = [
   { id: 'weeks', label: '任务清单', icon: BookOpenCheck },
@@ -50,22 +49,28 @@ const tabs = [
   { id: 'templates', label: '模板', icon: FileText },
 ] as const
 
+const timelineStyle = computed(() => ({
+  gridTemplateColumns: `repeat(${props.weeks.length === 12 ? 6 : Math.min(props.weeks.length, 8)}, minmax(0, 1fr))`,
+}))
+
 const filteredWeeks = computed(() => {
   const q = query.value.trim().toLowerCase()
-  return softwareWeeks.filter((week) => {
+  return props.weeks.filter((week) => {
     if (!q) return true
     const tasks = week.groups.flatMap((group) => group.tasks)
-    return [week.title, week.tag, ...tasks].join(' ').toLowerCase().includes(q)
+    return [week.title, week.tag, week.summary, ...tasks].join(' ').toLowerCase().includes(q)
   })
 })
 
-function weekDone(weekId: number) {
-  const week = softwareWeeks[weekId - 1]
-  if (!week) return { done: 0, total: 0, percent: 0 }
+function taskId(week: StudyWeek, groupIndex: number, taskIndex: number) {
+  return `${props.taskPrefix}${week.id}-g${groupIndex}-t${taskIndex}`
+}
+
+function weekDone(week: StudyWeek) {
   const total = week.groups.reduce((sum, group) => sum + group.tasks.length, 0)
   const done = week.groups.reduce(
     (sum, group, groupIndex) =>
-      sum + group.tasks.filter((_, taskIndex) => state.done.includes(`sw${weekId}-g${groupIndex}-t${taskIndex}`)).length,
+      sum + group.tasks.filter((_, taskIndex) => state.done.includes(taskId(week, groupIndex, taskIndex))).length,
     0,
   )
   return { done, total, percent: total === 0 ? 0 : Math.round((done / total) * 100) }
@@ -77,15 +82,17 @@ function toggleWeek(id: number) {
 }
 
 function scrollToWeek(id: number) {
-  document.getElementById(`software-week-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  document.getElementById(`study-week-${props.taskPrefix}-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
+
+const currentPhase = computed(() => props.phaseLabel?.(currentWeek.value) ?? '学习阶段')
 </script>
 
 <template>
   <div class="page-section">
     <ModuleHeader
-      title="软件工程"
-      subtitle="工程地基、全栈开发、部署安全、工程素养与每周工程副线"
+      :title="title"
+      :subtitle="subtitle"
       :banner="banner"
       :spot="spot"
       compact
@@ -97,16 +104,20 @@ function scrollToWeek(id: number) {
 
     <div class="page-section">
       <div class="panel panel-pad">
-        <div class="timeline software-timeline">
+        <div
+          class="timeline study-timeline"
+          :class="{ 'has-second-row': weeks.length > 8, 'six-columns': weeks.length === 12 }"
+          :style="timelineStyle"
+        >
           <div
-            v-for="week in softwareWeeks"
+            v-for="week in weeks"
             :key="week.id"
             class="tl"
-            :class="{ done: weekDone(week.id).done === weekDone(week.id).total, active: openAll || openWeekId === week.id }"
+            :class="{ done: weekDone(week).done === weekDone(week).total, active: openAll || openWeekId === week.id }"
             @click="scrollToWeek(week.id)"
           >
             <div class="tl-dot" :style="{ borderColor: week.color }">
-              {{ weekDone(week.id).percent === 100 ? '✓' : week.id }}
+              {{ weekDone(week).percent === 100 ? '✓' : week.id }}
             </div>
             <b>第 {{ week.id }} 周</b>
             <small>{{ week.tag }}</small>
@@ -141,7 +152,7 @@ function scrollToWeek(id: number) {
       <div class="page-section week-list">
         <article
           v-for="week in filteredWeeks"
-          :id="`software-week-${week.id}`"
+          :id="`study-week-${taskPrefix}-${week.id}`"
           :key="week.id"
           class="week-card"
           :style="{ '--week': week.color }"
@@ -160,8 +171,8 @@ function scrollToWeek(id: number) {
               <div class="week-score">
                 <div
                   class="mini-ring"
-                  :style="{ '--p': weekDone(week.id).percent }"
-                  :data-p="`${weekDone(week.id).percent}%`"
+                  :style="{ '--p': weekDone(week).percent }"
+                  :data-p="`${weekDone(week).percent}%`"
                 ></div>
                 <ChevronDown
                   :size="19"
@@ -182,12 +193,12 @@ function scrollToWeek(id: number) {
                   v-for="(task, taskIndex) in group.tasks"
                   :key="task"
                   class="task"
-                  :class="{ checked: state.done.includes(`sw${week.id}-g${groupIndex}-t${taskIndex}`) }"
+                  :class="{ checked: state.done.includes(taskId(week, groupIndex, taskIndex)) }"
                 >
                   <input
                     type="checkbox"
-                    :checked="state.done.includes(`sw${week.id}-g${groupIndex}-t${taskIndex}`)"
-                    @change="toggleTask(`sw${week.id}-g${groupIndex}-t${taskIndex}`)"
+                    :checked="state.done.includes(taskId(week, groupIndex, taskIndex))"
+                    @change="toggleTask(taskId(week, groupIndex, taskIndex))"
                   />
                   <span>{{ task }}</span>
                 </label>
@@ -213,7 +224,7 @@ function scrollToWeek(id: number) {
       <div class="section-head">
         <div>
           <h2>教程与教材</h2>
-          <p>前端、后端、数据库、部署与安全的官方资源</p>
+          <p>官方文档、工具和平台</p>
         </div>
       </div>
       <div class="panel panel-pad table-wrap">
@@ -226,7 +237,7 @@ function scrollToWeek(id: number) {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="resource in softwareResources" :key="resource.id">
+            <tr v-for="resource in resources" :key="resource.id">
               <td><span class="kind-badge">{{ resource.category }}</span></td>
               <td>
                 <a
@@ -252,11 +263,11 @@ function scrollToWeek(id: number) {
       <div class="section-head">
         <div>
           <h2>自查清单</h2>
-          <p>项目交付、部署上线与安全自测</p>
+          <p>实践前和交付前逐项检查</p>
         </div>
       </div>
       <div class="resource-grid">
-        <article v-for="checklist in softwareChecklists" :key="checklist.id" class="resource-card">
+        <article v-for="checklist in checklists" :key="checklist.id" class="resource-card">
           <h3>{{ checklist.title }}</h3>
           <p>{{ checklist.description }}</p>
           <ul>
@@ -273,11 +284,11 @@ function scrollToWeek(id: number) {
       <div class="section-head">
         <div>
           <h2>模板</h2>
-          <p>README、接口文档与部署文档</p>
+          <p>学习记录与实验报告</p>
         </div>
       </div>
       <div class="resource-grid">
-        <article v-for="template in softwareTemplates" :key="template.id" class="resource-card">
+        <article v-for="template in templates" :key="template.id" class="resource-card">
           <FileText :size="20" />
           <h3>{{ template.title }}</h3>
           <p>{{ template.description }}</p>
@@ -290,18 +301,16 @@ function scrollToWeek(id: number) {
         </article>
       </div>
     </div>
-
   </div>
 </template>
 
 <style scoped>
-.software-timeline {
-  grid-template-columns: repeat(8, minmax(0, 1fr));
+.study-timeline {
   position: relative;
 }
 
-.software-timeline::before,
-.software-timeline::after {
+.study-timeline::before,
+.study-timeline.has-second-row::after {
   content: '';
   position: absolute;
   left: 6.25%;
@@ -310,20 +319,26 @@ function scrollToWeek(id: number) {
   background: var(--line);
 }
 
-.software-timeline::before {
+.study-timeline::before {
   top: 25px;
 }
 
-.software-timeline::after {
+.study-timeline.has-second-row::after {
   top: 119px;
 }
 
-.software-timeline .tl {
+.study-timeline.six-columns::before,
+.study-timeline.six-columns.has-second-row::after {
+  left: 8.333%;
+  right: 8.333%;
+}
+
+.study-timeline .tl {
   position: relative;
   z-index: 1;
 }
 
-.software-timeline .tl-dot {
+.study-timeline .tl-dot {
   width: 50px;
   height: 50px;
   font-size: 0.8rem;
@@ -331,12 +346,12 @@ function scrollToWeek(id: number) {
   z-index: 1;
 }
 
-.software-timeline .tl b {
+.study-timeline .tl b {
   margin-top: 7px;
   font-size: 0.76rem;
 }
 
-.software-timeline .tl small {
+.study-timeline .tl small {
   display: block;
   font-size: 0.66rem;
 }
@@ -482,12 +497,8 @@ function scrollToWeek(id: number) {
 }
 
 @media (max-width: 860px) {
-  .software-timeline {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .software-timeline::before,
-  .software-timeline::after {
+  .study-timeline::before,
+  .study-timeline.has-second-row::after {
     display: none;
   }
 
@@ -495,8 +506,8 @@ function scrollToWeek(id: number) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .resource-grid {
-    grid-template-columns: 1fr;
+  .study-timeline {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   }
 
   .week-header {
@@ -514,12 +525,15 @@ function scrollToWeek(id: number) {
     text-align: left;
     width: 100%;
   }
-}
 
-@media (max-width: 560px) {
-  .software-timeline {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .resource-grid {
+    grid-template-columns: 1fr;
   }
 }
 
+@media (max-width: 560px) {
+  .study-timeline {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
 </style>

@@ -96,6 +96,50 @@ export interface LegalTemplate {
   fields: LegalTemplateField[]
 }
 
+export interface StudyWeek {
+  id: number
+  title: string
+  tag: string
+  summary: string
+  objective: string
+  color: string
+  groups: TaskGroup[]
+  deliverable: string
+  gate: string
+}
+
+export interface StudyResource {
+  id: string
+  category: string
+  title: string
+  link?: string
+  note: string
+}
+
+export interface StudyChecklistItem {
+  text: string
+  reference: string
+}
+
+export interface StudyChecklist {
+  id: string
+  title: string
+  description: string
+  items: StudyChecklistItem[]
+}
+
+export interface StudyTemplateField {
+  label: string
+  hint: string
+}
+
+export interface StudyTemplate {
+  id: string
+  title: string
+  description: string
+  fields: StudyTemplateField[]
+}
+
 export interface PersistedState {
   version: 1
   done: string[]

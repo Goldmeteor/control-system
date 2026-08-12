@@ -603,16 +603,16 @@ function scrollToWeek(id: number) {
 .legal-timeline {
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 8px 10px;
+  gap: 7px;
   position: relative;
 }
 
 .legal-timeline::before {
   content: '';
   position: absolute;
-  left: 5%;
-  right: 5%;
-  top: 22px;
+  left: 6.25%;
+  right: 6.25%;
+  top: 25px;
   height: 2px;
   background: var(--line);
 }
@@ -620,9 +620,9 @@ function scrollToWeek(id: number) {
 .legal-timeline::after {
   content: '';
   position: absolute;
-  left: 5%;
-  right: 5%;
-  top: 113px;
+  left: 6.25%;
+  right: 6.25%;
+  top: 119px;
   height: 2px;
   background: var(--line);
 }
@@ -636,14 +636,14 @@ function scrollToWeek(id: number) {
 }
 
 .lt-dot {
-  width: 46px;
-  height: 46px;
+  width: 50px;
+  height: 50px;
   margin: 0 auto;
   border-radius: 50%;
   display: grid;
   place-items: center;
   color: var(--text);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 900;
   background: var(--panel2);
   border: 2px solid var(--line);
@@ -770,10 +770,6 @@ function scrollToWeek(id: number) {
 }
 
 @media (max-width: 1120px) {
-  .legal-timeline {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
   .compliance-quick-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -785,6 +781,10 @@ function scrollToWeek(id: number) {
 }
 
 @media (max-width: 860px) {
+  .legal-timeline {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
   .legal-timeline::before,
   .legal-timeline::after {
     display: none;
@@ -820,9 +820,5 @@ function scrollToWeek(id: number) {
     grid-template-columns: 1fr;
   }
 
-  .lt-dot {
-    width: 42px;
-    height: 42px;
-  }
 }
 </style>

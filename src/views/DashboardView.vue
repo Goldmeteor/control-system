@@ -6,6 +6,8 @@ import {
   doneCount,
   legalDoneCount,
   legalTaskIds,
+  otherDoneCount,
+  otherTaskIds,
   percent,
   softwareDoneCount,
   softwareTaskIds,
@@ -17,6 +19,7 @@ import {
 const weekTotalCount = weekTaskIds.length
 const softwareTotalCount = softwareTaskIds.length
 const legalTotalCount = legalTaskIds.length
+const otherTotalCount = otherTaskIds.length
 
 const overviewStart = new Date('2026-08-10T00:00:00+08:00')
 
@@ -39,6 +42,7 @@ const dashboardWeeks = Array.from({ length: 16 }, (_, index) => {
 const researchPercent = weekTotalCount ? Math.round((weekDoneCount.value / weekTotalCount) * 100) : 0
 const engineeringPercent = softwareTotalCount ? Math.round((softwareDoneCount.value / softwareTotalCount) * 100) : 0
 const lawPercent = legalTotalCount ? Math.round((legalDoneCount.value / legalTotalCount) * 100) : 0
+const otherPercent = otherTotalCount ? Math.round((otherDoneCount.value / otherTotalCount) * 100) : 0
 
 const banner = {
   dark: '../assets/dashboard-hero-dark.webp',
@@ -69,6 +73,12 @@ const lines = [
     total: legalTotalCount,
     percent: lawPercent,
   },
+  {
+    label: '其他',
+    done: otherDoneCount.value,
+    total: otherTotalCount,
+    percent: otherPercent,
+  },
 ]
 
 function progressStatus(value: number) {
@@ -97,11 +107,11 @@ function dailyTip() {
   if (lines.every((line) => line.percent >= 60)) {
     return minLine.percent >= 75
       ? '离全部完成不远了，今天适合做收尾和复盘。'
-      : '三条线都在推进，今天保持节奏就很好了。'
+      : '四条线都在推进，今天保持节奏就很好了。'
   }
 
   if (lowCount >= 2) {
-    return '先集中突破落后较多的一条，不要三条同时硬啃。'
+    return '先集中突破落后较多的一条，不要四条同时硬啃。'
   }
 
   const othersAbove60 = lines
@@ -111,6 +121,7 @@ function dailyTip() {
   if (minLine.percent < 20) {
     if (minLine.label === '科研任务') return '科研任务还没动起来，今天可以多学一点路径规划内容哦。'
     if (minLine.label === '工程任务') return '软件工程进度落后了，今天适合补一补项目或部署任务。'
+    if (minLine.label === '其他') return '编程、网络安全或 AI 内容还没动起来，今天先挑一个小任务开始吧。'
     return '法律学习掉队了，今天看一节案例课程也不错。'
   }
 
@@ -118,20 +129,23 @@ function dailyTip() {
     if (othersAbove60) {
       if (minLine.label === '科研任务') return '科研是当前短板，今天优先安排路径规划任务。'
       if (minLine.label === '工程任务') return '工程任务拖后腿了，今天适合补部署或项目产出。'
+      if (minLine.label === '其他') return '其他学习线落后了，今天补一个编程、安全或 AI 小任务。'
       return '法律线需要追一追，今天补一条核心知识点。'
     }
     if (minLine.label === '科研任务') return '科研线有点落后，今天先拿下一个算法任务吧。'
     if (minLine.label === '工程任务') return '工程线需要加强，今天从一个小任务开始最不费力。'
+    if (minLine.label === '其他') return '其他学习线进度偏慢，今天从一个小任务开始最不费力。'
     return '法律线进度偏慢，今天整理一条合规自查清单吧。'
   }
 
   if (maxLine.percent - minLine.percent >= 30) {
     if (maxLine.label === '科研任务') return '科研跑在前面，今天可以分一点时间给工程和法律。'
     if (maxLine.label === '工程任务') return '工程线状态不错，今天稍微照顾一下科研和法律。'
+    if (maxLine.label === '其他') return '其他学习线状态不错，今天可以把时间分给科研、工程和法律。'
     return '法律线走得很稳，今天可以把时间分给其他两条线。'
   }
 
-  return '三条线都刚起步，今天优先补落后最多的一条。'
+  return '四条线都刚起步，今天优先补落后最多的一条。'
 }
 </script>
 
@@ -139,7 +153,7 @@ function dailyTip() {
   <div class="page-section">
     <ModuleHeader
       title="总览"
-      subtitle="科研、工程、法律三条学习线的统一入口"
+      subtitle="科研、工程、法律和其他学习线的统一入口"
       :banner="banner"
       :spot="spot"
       compact

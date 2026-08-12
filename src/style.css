@@ -482,6 +482,7 @@ a {
 }
 
 .tl small {
+  display: block;
   color: var(--muted);
   font-size: 0.68rem;
 }

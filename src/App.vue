@@ -2,12 +2,16 @@
 import { computed, onMounted, watch } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import {
+  Binary,
+  Bot,
   ClipboardList,
   LayoutDashboard,
+  Library,
   Moon,
   Route,
   Scale,
   Settings,
+  ShieldCheck,
   Sun,
 } from '@lucide/vue'
 import { setTheme, state } from './store'
@@ -19,6 +23,10 @@ const navItems = [
   { to: '/roadmap', label: '路径规划', icon: Route },
   { to: '/software', label: '软件工程', icon: ClipboardList },
   { to: '/legal', label: '法律学习', icon: Scale },
+  { to: '/programming', label: '编程基础', icon: Binary },
+  { to: '/cybersecurity', label: '网络安全', icon: ShieldCheck },
+  { to: '/ai-tech', label: 'AI技术', icon: Bot },
+  { to: '/knowledge-base', label: '知识库', icon: Library },
   { to: '/settings', label: '设置', icon: Settings },
 ]
 
